@@ -4,6 +4,8 @@ import { SocialPlatform } from '@prisma/client';
 import { SocialProvider } from './social.provider';
 import { XProvider } from './x.provider';
 import { RedditProvider } from './reddit.provider';
+import { InstagramProvider } from './instagram.provider';
+import { LinkedInProvider } from './linkedin.provider';
 
 /**
  * Central registry for all social platform providers.
@@ -44,6 +46,20 @@ export class ProviderRegistry {
         return new RedditProvider(clientId, clientSecret);
       }
 
+      case SocialPlatform.instagram: {
+        const clientId = this.config.getOrThrow<string>('INSTAGRAM_CLIENT_ID');
+        const clientSecret = this.config.getOrThrow<string>('INSTAGRAM_CLIENT_SECRET');
+        this.logger.log('Initialized Instagram provider');
+        return new InstagramProvider(clientId, clientSecret);
+      }
+
+      case SocialPlatform.linkedin: {
+        const clientId = this.config.getOrThrow<string>('LINKEDIN_CLIENT_ID');
+        const clientSecret = this.config.getOrThrow<string>('LINKEDIN_CLIENT_SECRET');
+        this.logger.log('Initialized LinkedIn provider');
+        return new LinkedInProvider(clientId, clientSecret);
+      }
+
       default:
         throw new Error(`No provider implemented for platform: ${platform}`);
     }
@@ -68,6 +84,20 @@ export class ProviderRegistry {
       this.config.get('REDDIT_CLIENT_SECRET')
     ) {
       platforms.push(SocialPlatform.reddit);
+    }
+
+    if (
+      this.config.get('INSTAGRAM_CLIENT_ID') &&
+      this.config.get('INSTAGRAM_CLIENT_SECRET')
+    ) {
+      platforms.push(SocialPlatform.instagram);
+    }
+
+    if (
+      this.config.get('LINKEDIN_CLIENT_ID') &&
+      this.config.get('LINKEDIN_CLIENT_SECRET')
+    ) {
+      platforms.push(SocialPlatform.linkedin);
     }
 
     return platforms;
