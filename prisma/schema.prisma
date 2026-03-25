@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum SocialPlatform {
+  x
+  instagram
+  reddit
+  linkedin
+  tiktok
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  FAILED
+}
+
+enum PostIntegrationStatus {
+  PENDING
+  PUBLISHED
+  FAILED
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Models
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  apiKey      String   @unique @default(cuid())
+  paymentId   String?
+  isTrialing  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users        UserOrganization[]
+  integrations Integration[]
+  posts        Post[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  providerName String?
+  timezone     String   @default("UTC")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  organizations UserOrganization[]
+}
+
+model UserOrganization {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  role           UserRole @default(MEMBER)
+  createdAt      DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+}
+
+model Integration {
+  id             String         @id @default(cuid())
+  organizationId String
+  token          String
+  refreshToken   String?
+  internalId     String
+  identifier     SocialPlatform
+  disabled       Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  postIntegrations PostIntegration[]
+
+  @@unique([organizationId, identifier, internalId])
+  @@index([organizationId])
+}
+
+model Post {
+  id             String     @id @default(cuid())
+  organizationId String
+  content        String
+  scheduledAt    DateTime?
+  publishedAt    DateTime?
+  status         PostStatus @default(DRAFT)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  postIntegrations PostIntegration[]
+
+  @@index([organizationId, status])
+  @@index([scheduledAt, status])
+}
+
+model PostIntegration {
+  id            String                @id @default(cuid())
+  postId        String
+  integrationId String
+  status        PostIntegrationStatus @default(PENDING)
+  error         String?
+  externalId    String?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  post        Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, integrationId])
+  @@index([integrationId])
+}
