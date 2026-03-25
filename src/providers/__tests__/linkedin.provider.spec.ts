@@ -173,7 +173,7 @@ describe('LinkedInProvider', () => {
       const result = await provider.publish(ACCESS_TOKEN, 'Hello LinkedIn! 🚀');
 
       expect(result.externalId).toBe(postUrn);
-      expect(result.url).toContain(encodeURIComponent(postUrn));
+      expect(result.url).toContain(postUrn);
     });
 
     it('should throw when UGC post returns no URN in headers', async () => {
