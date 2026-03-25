@@ -129,6 +129,77 @@ function initCodeCopy() {
 }
 
 // ─────────────────────────────────────────────
+// Waitlist form — safe submission handler
+// Handles both: real Formspree ID and placeholder (dev mode)
+// ─────────────────────────────────────────────
+function initWaitlistForm() {
+  const form = document.querySelector('.waitlist-form');
+  if (!form) return;
+
+  const actionUrl = form.getAttribute('action') || '';
+  const isPlaceholder = actionUrl.includes('REPLACE_WITH_YOUR_FORMSPREE_ID');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const emailInput = form.querySelector('input[type="email"]');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const email = emailInput ? emailInput.value.trim() : '';
+
+    if (!email) return;
+
+    // Disable button during submission
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Joining…';
+    }
+
+    if (isPlaceholder) {
+      // Formspree not configured yet — log locally and show success UI
+      console.info('[Outpost] Waitlist signup captured (Formspree not configured):', email);
+      showWaitlistSuccess(form, email);
+      return;
+    }
+
+    // Real Formspree endpoint — submit via fetch
+    try {
+      const res = await fetch(actionUrl, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.ok) {
+        showWaitlistSuccess(form, email);
+      } else {
+        throw new Error(`Formspree error: ${res.status}`);
+      }
+    } catch (err) {
+      console.error('[Outpost] Waitlist submission failed:', err);
+      // Re-enable on failure so user can retry
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Join Waitlist';
+      }
+      const note = form.querySelector('.waitlist-note');
+      if (note) {
+        note.textContent = 'Something went wrong — try again or email hello@outpost.dev';
+        note.style.color = '#ff6b6b';
+      }
+    }
+  });
+}
+
+function showWaitlistSuccess(form, email) {
+  form.innerHTML = `
+    <div class="waitlist-success">
+      <p class="waitlist-success-title">✅ You're on the list.</p>
+      <p class="waitlist-success-sub">We'll reach out to <strong>${email}</strong> when your spot is ready.</p>
+    </div>
+  `;
+}
+
+// ─────────────────────────────────────────────
 // Init
 // ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -136,4 +207,5 @@ document.addEventListener('DOMContentLoaded', () => {
   loadFoundingCount();
   initNavHighlight();
   initCodeCopy();
+  initWaitlistForm();
 });
