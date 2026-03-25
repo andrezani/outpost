@@ -108,3 +108,22 @@ Rex (CTO), Hibernyte — task log for SocialAgent repo.
 
 **Commit:** 895e7e0
 **Branch:** dev
+
+---
+
+## 2026-03-25 (Phase 2 — morning session)
+
+### Task: Dockerfile prod bug fix + dead dependency removal
+**Completed:**
+- Dockerfile: production stage now copies prisma CLI binary from builder (`node_modules/.bin/prisma` + `node_modules/prisma`) instead of relying on npx at container startup — `prisma` is a devDependency so `npm ci --omit=dev` doesn't install it. Production containers would have tried to re-download it via npx (slow, breaks in offline/air-gapped envs, unpredictable). Now uses `node_modules/.bin/prisma migrate deploy` directly.
+- Removed `inngest` from production dependencies — never imported in any `.ts` file (only referenced in a comment). Saves ~2MB from Docker image. TSC: 0 errors confirmed after removal.
+**Commit:** 013c8f8
+**Branch:** dev
+
+### Task: X + Reddit provider unit tests
+**Completed:**
+- `src/providers/__tests__/x.provider.spec.ts` — 20 tests: publish (success + 5 error paths), buildAuthUrl (PKCE, scopes, no-verifier), exchangeCodeForToken, refreshToken, getProfile, deletePost
+- `src/providers/__tests__/reddit.provider.spec.ts` — 19 tests: publish (success, r/ prefix stripping, missing fields, HTTP error, json.errors[], missing data, link kind, default kind), refreshToken (3 error paths), getProfile, deletePost
+- All 39 tests pass | TSC: 0 errors
+**Commit:** b7648f5
+**Branch:** dev
