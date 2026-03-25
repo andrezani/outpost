@@ -5,6 +5,6 @@ import { ProviderRegistry } from '../../providers/provider.registry';
 
 @Module({
   providers: [ProviderRegistry, PublisherService, SchedulerService],
-  exports: [PublisherService],
+  exports: [PublisherService, ProviderRegistry],
 })
 export class PublisherModule {}

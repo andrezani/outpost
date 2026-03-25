@@ -42,6 +42,16 @@ export class PostsController {
     return this.service.findById(id);
   }
 
+  /**
+   * GET /api/v1/posts/:id/status
+   * Check publish status of a post — used by MCP get_post_status tool.
+   * Returns: { id, status, publishedAt, url, error, postIntegrations }
+   */
+  @Get(':id/status')
+  getStatus(@Param('id') id: string) {
+    return this.service.getStatus(id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdatePostDto) {
     return this.service.update(id, dto);

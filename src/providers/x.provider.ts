@@ -23,6 +23,7 @@ export class XProvider extends SocialProvider {
 
   private static readonly API_BASE = 'https://api.twitter.com/2';
   private static readonly AUTH_BASE = 'https://api.twitter.com/oauth2';
+  private static readonly OAUTH_BASE = 'https://twitter.com/i/oauth2';
 
   private readonly clientId: string;
   private readonly clientSecret: string;
@@ -74,6 +75,85 @@ export class XProvider extends SocialProvider {
       externalId: tweetId,
       url: `https://x.com/i/web/status/${tweetId}`,
     };
+  }
+
+  /**
+   * Build OAuth 2.0 PKCE authorization URL for X.
+   * @param redirectUri - OAuth redirect URI
+   * @param state - CSRF state token
+   * @param codeVerifier - PKCE code verifier (store securely; needed for token exchange)
+   */
+  buildAuthUrl(redirectUri: string, state: string, codeVerifier?: string): string {
+    const codeChallenge = codeVerifier
+      ? this.generateCodeChallenge(codeVerifier)
+      : undefined;
+
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: this.clientId,
+      redirect_uri: redirectUri,
+      scope: 'tweet.read tweet.write users.read offline.access',
+      state,
+    });
+
+    if (codeChallenge) {
+      params.set('code_challenge', codeChallenge);
+      params.set('code_challenge_method', 'S256');
+    }
+
+    return `${XProvider.OAUTH_BASE}/authorize?${params.toString()}`;
+  }
+
+  /**
+   * Exchange authorization code for access token using PKCE.
+   */
+  async exchangeCodeForToken(
+    code: string,
+    redirectUri: string,
+    codeVerifier: string,
+  ): Promise<{ token: string; refreshToken?: string }> {
+    const credentials = Buffer.from(
+      `${this.clientId}:${this.clientSecret}`,
+    ).toString('base64');
+
+    const res = await fetch(`${XProvider.AUTH_BASE}/token`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${credentials}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: redirectUri,
+        client_id: this.clientId,
+        code_verifier: codeVerifier,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = (await res.json().catch(() => ({}))) as XApiError;
+      throw new Error(
+        `X token exchange failed: ${err.detail ?? `HTTP ${res.status}`}`,
+      );
+    }
+
+    const data = (await res.json()) as {
+      access_token: string;
+      refresh_token?: string;
+    };
+
+    return {
+      token: data.access_token,
+      refreshToken: data.refresh_token,
+    };
+  }
+
+  private generateCodeChallenge(verifier: string): string {
+    const { createHash } = require('crypto') as typeof import('crypto');
+    return createHash('sha256')
+      .update(verifier)
+      .digest('base64url');
   }
 
   async refreshToken(

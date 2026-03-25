@@ -42,6 +42,11 @@ enum PostIntegrationStatus {
   FAILED
 }
 
+enum WebhookEvent {
+  post_published
+  post_failed
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Models
 // ─────────────────────────────────────────────────────────────────────────────
@@ -52,12 +57,20 @@ model Organization {
   apiKey      String   @unique @default(cuid())
   paymentId   String?
   isTrialing  Boolean  @default(true)
+  /// Monthly post quota (null = unlimited)
+  postQuota   Int?     @default(100)
+  /// Posts used this calendar month
+  postsUsed   Int      @default(0)
+  /// When the quota window last reset (start of month)
+  quotaResetAt DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   users        UserOrganization[]
   integrations Integration[]
   posts        Post[]
+  oauthStates  OAuthState[]
+  webhooks     Webhook[]
 }
 
 model User {
@@ -93,6 +106,12 @@ model Integration {
   internalId     String
   identifier     SocialPlatform
   disabled       Boolean        @default(false)
+  /// Human-readable handle / username on the platform
+  handle         String?
+  /// Display name on the platform
+  displayName    String?
+  /// Platform profile picture URL
+  avatarUrl      String?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
@@ -107,6 +126,8 @@ model Post {
   id             String     @id @default(cuid())
   organizationId String
   content        String
+  /// JSON-encoded options (subreddit, title, imageUrl, etc.)
+  options        Json?
   scheduledAt    DateTime?
   publishedAt    DateTime?
   status         PostStatus @default(DRAFT)
@@ -127,6 +148,8 @@ model PostIntegration {
   status        PostIntegrationStatus @default(PENDING)
   error         String?
   externalId    String?
+  /// Public URL to the published post
+  url           String?
   createdAt     DateTime              @default(now())
   updatedAt     DateTime              @updatedAt
 
@@ -135,4 +158,44 @@ model PostIntegration {
 
   @@unique([postId, integrationId])
   @@index([integrationId])
+}
+
+/// Ephemeral OAuth state for PKCE + CSRF protection.
+/// Created at auth URL generation, deleted after callback.
+model OAuthState {
+  id             String         @id @default(cuid())
+  organizationId String
+  platform       SocialPlatform
+  /// CSRF state token (random, opaque, stored as the OAuth `state` param)
+  state          String         @unique
+  /// PKCE code verifier (for platforms using PKCE — X, Reddit)
+  codeVerifier   String?
+  /// Where to redirect the user after OAuth success
+  redirectUri    String
+  expiresAt      DateTime
+  createdAt      DateTime       @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([state])
+  @@index([expiresAt])
+}
+
+/// Webhook endpoints registered by an org to receive post events.
+model Webhook {
+  id             String       @id @default(cuid())
+  organizationId String
+  /// HTTPS URL to POST events to
+  url            String
+  /// Which events to fire for (empty = all)
+  events         WebhookEvent[]
+  /// Secret for HMAC-SHA256 signature header (X-SocialAgent-Signature)
+  secret         String
+  enabled        Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
 }
