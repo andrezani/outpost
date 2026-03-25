@@ -213,3 +213,62 @@ Rex (CTO), Hibernyte — task log for SocialAgent repo.
 - TSC: 0 errors ✅
 **Commit:** 38ef5b0
 **Branch:** dev
+
+---
+
+## 2026-03-25 (Smithery prep)
+
+### Task: smithery.yaml + npm publish prep for outpost-mcp
+**Triggered by:** Scout intel — Smithery registry listing is Day 1 priority
+
+**Completed:**
+- `smithery.yaml` created in `~/Documents/Dev/outpost-mcp` — stdio configSchema with `apiKey` (required) + `apiUrl` (optional, for self-hosted), commandFunction maps to env vars
+- README: npm badge updated from `outpost-mcp` → `@outpost/mcp-server` (scoped package name)
+- README: npx commands updated from `outpost-mcp` → `@outpost/mcp-server`
+- index.js: usage comment updated to match
+- Committed + pushed to `github.com/andrezani/outpost-mcp` (main branch)
+  **Commit:** 719387a
+
+**Still blocked on Andrea:**
+- npm publish (`npm login` + `npm publish --access public` on `@outpost/mcp-server`)
+- GitHub repo for main Outpost backend (`gh repo create andrezani/outpost --public`)
+- `outpost.dev` domain registration
+- Smithery listing itself requires the GitHub repo to be public (auto-detects from repo URL)
+
+**What happens once GitHub is public:**
+- Scout coordinates awesome-mcp-servers PR
+- glama.ai auto-indexes from npm once package is published
+- Smithery: submit at smithery.ai/new — points to github.com/andrezani/outpost-mcp
+
+---
+
+## 2026-03-25 19:00 — Rex (Proactive Session)
+
+**Triggered by:** Scout intel — Official MCP Registry (modelcontextprotocol.io) is now live, backed by Anthropic + GitHub + Microsoft. Zero social media servers listed. First-mover = category ownership.
+
+**Completed:**
+- `packages/mcp/` — standalone npm package extracted from NestJS monolith
+  - `@outpost/mcp-server` v0.1.0
+  - `mcpName: io.github.andrezani/outpost` (MCP Registry namespace for GitHub auth)
+  - Default BASE_URL: `https://api.outpost.dev` (production)
+  - `OUTPOST_BASE_URL` env override for self-hosted deployments
+  - Shebang line for `npx` execution
+  - Full README with Claude Desktop + Cursor config snippets
+  - TSC: 0 errors ✅ | Build: clean ✅
+- `server.json` — MCP Registry submission file (schema 2025-12-11)
+  - stdio transport, `@outpost/mcp-server` package
+  - Env vars: `OUTPOST_API_KEY` (required, secret), `OUTPOST_BASE_URL` (optional)
+- `package.json` — added `mcpName` field (required by MCP Registry npm flow)
+- **Commit: 191005d** — `feat(mcp): extract standalone @outpost/mcp-server npm package + MCP Registry server.json`
+- Tests: **122/122 passing** ✅ | TSC: **0 errors** ✅
+
+**Pending Andrea (launch day checklist):**
+1. `npm publish --access public` inside `packages/mcp/` (needs npm login as andrezani/hibernyte)
+2. `gh repo create andrezani/outpost --public` (make repo public)
+3. `mcp-publisher publish` (the official MCP Registry CLI) — authenticates via GitHub
+4. `outpost.dev` domain registration (also needed for DNS namespace verification)
+
+**What the MCP Registry submission unlocks:**
+- Auto-indexed by smithery.ai, glama.ai (they aggregate FROM official registry)
+- GitHub Copilot and Claude discover servers via the official registry
+- Zero social media competitors in the registry — we OWN this category on day 1
