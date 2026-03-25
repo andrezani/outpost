@@ -15,6 +15,7 @@ import { XProvider } from '../../providers/x.provider';
 import { BlueskyProvider } from '../../providers/bluesky.provider';
 import { ThreadsProvider } from '../../providers/threads.provider';
 import { randomBytes, createHash } from 'crypto';
+import { RateLimitService } from '../../common/rate-limit.service';
 
 export interface ConnectedAccount {
   id: string;
@@ -42,6 +43,7 @@ export class AccountsService {
     private readonly prisma: PrismaService,
     private readonly registry: ProviderRegistry,
     private readonly config: ConfigService,
+    private readonly rateLimitSvc: RateLimitService,
   ) {}
 
   // ─── List connected accounts ──────────────────────────────────────────────
@@ -333,17 +335,23 @@ export class AccountsService {
       throw new NotFoundException(`Account ${accountId} not found`);
     }
 
-    // Return static rate limit info from platform capabilities
-    // In v2 we'd track actual API call counts in Redis
-    const { getPlatformCapabilities } = await import('../../common/platform-capabilities.js');
-    const caps = getPlatformCapabilities(integration.identifier);
+    // Live rate limit status from Redis sliding-window counters
+    const liveStatus = await this.rateLimitSvc.getStatus(
+      integration.id,
+      integration.identifier,
+    );
 
     return {
       accountId,
       platform: integration.identifier,
       handle: integration.handle,
-      rateLimit: caps.rateLimit,
-      note: 'Live rate limit tracking available in v2 (requires Redis counters)',
+      rateLimit: {
+        used: liveStatus.used,
+        limit: liveStatus.limit,
+        remaining: liveStatus.remaining,
+        resetAt: liveStatus.resetAt,
+        windowMinutes: liveStatus.windowMinutes,
+      },
     };
   }
 

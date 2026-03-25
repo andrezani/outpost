@@ -15,6 +15,7 @@ import {
 import { PublishRequestDto } from './publish.dto';
 import { WebhooksService } from '../webhooks/webhooks.service';
 import { WebhookEvent } from '@prisma/client';
+import { RateLimitService } from '../../common/rate-limit.service';
 
 export interface RateLimitInfo {
   remaining: number;
@@ -53,6 +54,7 @@ export class PublishService {
     private readonly prisma: PrismaService,
     private readonly registry: ProviderRegistry,
     private readonly webhooks: WebhooksService,
+    private readonly rateLimits: RateLimitService,
   ) {}
 
   async publish(
@@ -215,16 +217,19 @@ export class PublishService {
       externalId = result.externalId;
       postUrl = result.url;
 
-      // 6. Increment org quota usage
-      await this.prisma.organization.update({
-        where: { id: organizationId },
-        data: { postsUsed: { increment: 1 } },
-      });
+      // 6. Increment org quota usage + live rate limit counter (parallel)
+      const [, rlStatus] = await Promise.all([
+        this.prisma.organization.update({
+          where: { id: organizationId },
+          data: { postsUsed: { increment: 1 } },
+        }),
+        this.rateLimits.increment(integration.id, dto.platform),
+      ]);
 
       const publishedAt = new Date().toISOString();
 
       this.logger.log(
-        `✅ Published to ${dto.platform} for org ${organizationId}: ${postUrl ?? externalId}`,
+        `✅ Published to ${dto.platform} for org ${organizationId}: ${postUrl ?? externalId} (rl: ${rlStatus.remaining}/${rlStatus.limit} remaining)`,
       );
 
       // Fire webhook (non-blocking — errors won't affect the response)
@@ -243,6 +248,11 @@ export class PublishService {
         platform: dto.platform,
         url: postUrl,
         publishedAt,
+        rateLimit: {
+          remaining: rlStatus.remaining,
+          resetAt: rlStatus.resetAt,
+          windowMinutes: rlStatus.windowMinutes,
+        },
       };
     } catch (err) {
       const agentErr = buildAgentError(err, dto.platform);
