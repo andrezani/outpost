@@ -6,6 +6,8 @@ import { XProvider } from './x.provider';
 import { RedditProvider } from './reddit.provider';
 import { InstagramProvider } from './instagram.provider';
 import { LinkedInProvider } from './linkedin.provider';
+import { BlueskyProvider } from './bluesky.provider';
+import { ThreadsProvider } from './threads.provider';
 
 /**
  * Central registry for all social platform providers.
@@ -60,6 +62,22 @@ export class ProviderRegistry {
         return new LinkedInProvider(clientId, clientSecret);
       }
 
+      case SocialPlatform.bluesky: {
+        // Bluesky uses app passwords (not OAuth client creds) for auth.
+        // clientId/Secret are optional — stored for future AT Protocol OAuth 2.0 DPoP support.
+        const clientId = this.config.get<string>('BLUESKY_CLIENT_ID');
+        const clientSecret = this.config.get<string>('BLUESKY_CLIENT_SECRET');
+        this.logger.log('Initialized Bluesky provider');
+        return new BlueskyProvider(clientId, clientSecret);
+      }
+
+      case SocialPlatform.threads: {
+        const clientId = this.config.getOrThrow<string>('THREADS_CLIENT_ID');
+        const clientSecret = this.config.getOrThrow<string>('THREADS_CLIENT_SECRET');
+        this.logger.log('Initialized Threads provider');
+        return new ThreadsProvider(clientId, clientSecret);
+      }
+
       default:
         throw new Error(`No provider implemented for platform: ${platform}`);
     }
@@ -98,6 +116,17 @@ export class ProviderRegistry {
       this.config.get('LINKEDIN_CLIENT_SECRET')
     ) {
       platforms.push(SocialPlatform.linkedin);
+    }
+
+    // Bluesky: always "configured" since it uses app passwords, not OAuth client creds.
+    // The provider is always available; auth happens at connection time via createSession().
+    platforms.push(SocialPlatform.bluesky);
+
+    if (
+      this.config.get('THREADS_CLIENT_ID') &&
+      this.config.get('THREADS_CLIENT_SECRET')
+    ) {
+      platforms.push(SocialPlatform.threads);
     }
 
     return platforms;

@@ -25,6 +25,8 @@ enum SocialPlatform {
   reddit
   linkedin
   tiktok
+  bluesky
+  threads
 }
 
 enum PostStatus {
