@@ -4,6 +4,34 @@ Rex (CTO), Hibernyte — task log for SocialAgent repo.
 
 ---
 
+## 2026-03-25 (Billing)
+
+### Task: Stripe billing module (Pro $29/mo + Team $99/mo + Founding $49/mo)
+**Task ID:** 3aca2e1e-6489-44dd-b95c-7bdb07051e8c
+
+**Completed:**
+- `BillingModule` with `StripeService` — `createCustomer`, `createSubscription`, `cancelSubscription`
+- `TierService` — `setTierByCustomerId`, `setTier`, `priceIdToTier` — updates `org.tier` + quota caches
+- `StripeWebhookController` (POST `/api/v1/webhooks/stripe`):
+  - `customer.subscription.created/updated/deleted` → update org tier via `TierService`
+  - `invoice.payment_failed` → log (Stripe retries; subscription.deleted fires on max retries)
+  - Stripe-Signature verified via `STRIPE_WEBHOOK_SECRET`
+  - Excluded from API key middleware (Stripe auth is signature-based)
+- `BillingController`:
+  - `POST /api/v1/billing/subscribe` — plan: `pro` | `team` | `founding`; creates Stripe customer + sub
+  - `DELETE /api/v1/billing/cancel` — cancel at period end
+- Env vars (all stubbed, app works without them):
+  - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
+  - `STRIPE_PRO_PRICE_ID`, `STRIPE_TEAM_PRICE_ID`, `STRIPE_FOUNDING_PRICE_ID`
+- Raw body capture in `main.ts` for Stripe webhook signature verification
+- `.env.example` updated with all Stripe vars + setup comments
+- TSC: 0 errors ✅ | Tests: 96/96 pass ✅
+
+**Commit:** 77b5578
+**Branch:** dev
+
+---
+
 ## 2026-03-25 (Phase 2)
 
 ### Task: Phase 2a — seed:admin bootstrap script
