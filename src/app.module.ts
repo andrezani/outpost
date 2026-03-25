@@ -15,6 +15,7 @@ import { PublishModule } from './modules/publish/publish.module';
 import { AccountsModule } from './modules/accounts/accounts.module';
 import { PlatformsModule } from './modules/platforms/platforms.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
+import { BillingModule } from './modules/billing/billing.module';
 import { ApiKeyMiddleware } from './middleware/api-key.middleware';
 import { HealthController } from './health/health.controller';
 
@@ -32,6 +33,8 @@ import { HealthController } from './health/health.controller';
     AccountsModule,
     PlatformsModule,
     WebhooksModule,
+    // Phase 3: Stripe billing
+    BillingModule,
   ],
   controllers: [HealthController],
 })
@@ -44,6 +47,8 @@ export class AppModule implements NestModule {
         { path: 'organizations', method: RequestMethod.POST },
         { path: 'auth/users', method: RequestMethod.POST },
         { path: 'health', method: RequestMethod.GET },
+        // Stripe webhooks are authenticated via signature — not API key
+        { path: 'webhooks/stripe', method: RequestMethod.POST },
       )
       .forRoutes('*');
   }

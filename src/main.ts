@@ -1,11 +1,30 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { json } from 'express';
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger('Bootstrap');
-  const app = await NestFactory.create(AppModule);
+
+  // Raw body is required for Stripe webhook signature verification.
+  // We capture it on every request and attach it as req.rawBody so the
+  // Stripe webhook controller can verify the signature.
+  const app = await NestFactory.create(AppModule, {
+    rawBody: true,
+  });
+
+  // Attach rawBody buffer to req so StripeWebhookController can access it.
+  // NestJS rawBody option stores it on req.rawBody automatically.
+  // We also allow large payloads for Stripe events.
+  app.use(
+    '/api/v1/webhooks/stripe',
+    json({
+      verify: (req: import('http').IncomingMessage & { rawBody?: Buffer }, _res, buf) => {
+        (req as { rawBody?: Buffer }).rawBody = buf;
+      },
+    }),
+  );
 
   // Global prefix
   app.setGlobalPrefix('api/v1');
