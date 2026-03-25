@@ -17,6 +17,8 @@ export enum SocialAgentErrorCode {
   SUBREDDIT_REQUIRED = 'SUBREDDIT_REQUIRED',
   SUBREDDIT_NOT_FOUND = 'SUBREDDIT_NOT_FOUND',
   VALIDATION_ERROR = 'VALIDATION_ERROR',
+  TIER_INSUFFICIENT = 'TIER_INSUFFICIENT',
+  PLATFORM_QUOTA_EXCEEDED = 'PLATFORM_QUOTA_EXCEEDED',
 }
 
 export interface AgentError {
@@ -143,6 +145,8 @@ export function buildAgentError(
     [SocialAgentErrorCode.SUBREDDIT_REQUIRED]: `Reddit posts require a subreddit. Include metadata.subreddit in the request.`,
     [SocialAgentErrorCode.SUBREDDIT_NOT_FOUND]: `The subreddit does not exist or is private. Verify the subreddit name.`,
     [SocialAgentErrorCode.VALIDATION_ERROR]: `Request validation failed. Check the request body and retry.`,
+    [SocialAgentErrorCode.TIER_INSUFFICIENT]: `Your current plan does not include this feature. Upgrade to access it.`,
+    [SocialAgentErrorCode.PLATFORM_QUOTA_EXCEEDED]: `Your plan allows a limited number of connected platforms. Disconnect one or upgrade your plan.`,
   };
 
   return {

@@ -19,6 +19,16 @@ enum UserRole {
   MEMBER
 }
 
+/// Billing tier for an organization.
+/// Determines post quota, platform count, and webhook access.
+enum OrgTier {
+  free
+  pro
+  team
+  /// Founding rate — $49/mo locked forever for first 50 customers.
+  team_founding
+}
+
 enum SocialPlatform {
   x
   instagram
@@ -57,8 +67,13 @@ model Organization {
   apiKey      String   @unique @default(cuid())
   paymentId   String?
   isTrialing  Boolean  @default(true)
-  /// Monthly post quota (null = unlimited)
+  /// Billing tier (drives quota enforcement via TIER_LIMITS constants)
+  tier        OrgTier  @default(free)
+  /// Monthly post quota (null = unlimited). Derived from tier at creation/upgrade.
+  /// Cached here so a single quota check doesn't need to join on tier logic.
   postQuota   Int?     @default(100)
+  /// Max platforms the org can connect (null = unlimited). Derived from tier.
+  platformQuota Int?   @default(3)
   /// Posts used this calendar month
   postsUsed   Int      @default(0)
   /// When the quota window last reset (start of month)
