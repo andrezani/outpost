@@ -6,13 +6,13 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    container_name: socialagent_app
+    container_name: outpost_app
     restart: unless-stopped
     ports:
       - '${PORT:-3000}:3000'
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://socialagent:socialagent@postgres:5432/socialagent
+      DATABASE_URL: postgresql://outpost:outpost@postgres:5432/outpost
       REDIS_URL: redis://redis:6379
       PORT: 3000
       CORS_ORIGIN: ${CORS_ORIGIN:-*}
@@ -27,7 +27,7 @@ services:
       THREADS_CLIENT_SECRET: ${THREADS_CLIENT_SECRET:-}
       LINKEDIN_CLIENT_ID: ${LINKEDIN_CLIENT_ID:-}
       LINKEDIN_CLIENT_SECRET: ${LINKEDIN_CLIENT_SECRET:-}
-      SOCIALAGENT_BASE_URL: ${SOCIALAGENT_BASE_URL:-http://localhost:3000}
+      OUTPOST_BASE_URL: ${OUTPOST_BASE_URL:-http://localhost:3000}
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,25 +42,25 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: socialagent_postgres
+    container_name: outpost_postgres
     restart: unless-stopped
     ports:
       - '5432:5432'
     environment:
-      POSTGRES_USER: socialagent
-      POSTGRES_PASSWORD: socialagent
-      POSTGRES_DB: socialagent
+      POSTGRES_USER: outpost
+      POSTGRES_PASSWORD: outpost
+      POSTGRES_DB: outpost
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U socialagent']
+      test: ['CMD-SHELL', 'pg_isready -U outpost']
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: socialagent_redis
+    container_name: outpost_redis
     restart: unless-stopped
     ports:
       - '6379:6379'

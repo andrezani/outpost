@@ -1,8 +1,8 @@
 /**
- * Agent-native error codes for SocialAgent API.
+ * Agent-native error codes for Outpost API.
  * These are parseable by LLMs — use them in switch statements, not string matching.
  */
-export enum SocialAgentErrorCode {
+export enum OutpostErrorCode {
   AUTH_EXPIRED = 'AUTH_EXPIRED',
   AUTH_INVALID = 'AUTH_INVALID',
   RATE_LIMITED = 'RATE_LIMITED',
@@ -22,7 +22,7 @@ export enum SocialAgentErrorCode {
 }
 
 export interface AgentError {
-  code: SocialAgentErrorCode;
+  code: OutpostErrorCode;
   message: string;
   /** LLM-readable hint: what the agent should do next */
   agentHint: string;
@@ -35,10 +35,10 @@ export interface AgentError {
 }
 
 /**
- * Classify a raw provider error string into a SocialAgentErrorCode.
+ * Classify a raw provider error string into a OutpostErrorCode.
  * Returns best-effort classification — falls back to PLATFORM_ERROR.
  */
-export function classifyError(errMsg: string): SocialAgentErrorCode {
+export function classifyError(errMsg: string): OutpostErrorCode {
   const lower = errMsg.toLowerCase();
 
   if (
@@ -47,7 +47,7 @@ export function classifyError(errMsg: string): SocialAgentErrorCode {
     lower.includes('too many requests') ||
     lower.includes('429')
   ) {
-    return SocialAgentErrorCode.RATE_LIMITED;
+    return OutpostErrorCode.RATE_LIMITED;
   }
 
   if (
@@ -58,7 +58,7 @@ export function classifyError(errMsg: string): SocialAgentErrorCode {
     lower.includes('auth expired') ||
     lower.includes('invalid_token')
   ) {
-    return SocialAgentErrorCode.AUTH_EXPIRED;
+    return OutpostErrorCode.AUTH_EXPIRED;
   }
 
   if (
@@ -67,7 +67,7 @@ export function classifyError(errMsg: string): SocialAgentErrorCode {
     lower.includes('auth invalid') ||
     lower.includes('invalid_grant')
   ) {
-    return SocialAgentErrorCode.AUTH_INVALID;
+    return OutpostErrorCode.AUTH_INVALID;
   }
 
   if (
@@ -77,7 +77,7 @@ export function classifyError(errMsg: string): SocialAgentErrorCode {
     lower.includes('exceeds') ||
     lower.includes('280')
   ) {
-    return SocialAgentErrorCode.CONTENT_TOO_LONG;
+    return OutpostErrorCode.CONTENT_TOO_LONG;
   }
 
   if (
@@ -86,18 +86,18 @@ export function classifyError(errMsg: string): SocialAgentErrorCode {
     lower.includes('spam') ||
     lower.includes('banned')
   ) {
-    return SocialAgentErrorCode.CONTENT_POLICY;
+    return OutpostErrorCode.CONTENT_POLICY;
   }
 
   if (
     lower.includes('subreddit') &&
     lower.includes('not found')
   ) {
-    return SocialAgentErrorCode.SUBREDDIT_NOT_FOUND;
+    return OutpostErrorCode.SUBREDDIT_NOT_FOUND;
   }
 
   if (lower.includes('subreddit required')) {
-    return SocialAgentErrorCode.SUBREDDIT_REQUIRED;
+    return OutpostErrorCode.SUBREDDIT_REQUIRED;
   }
 
   if (
@@ -105,7 +105,7 @@ export function classifyError(errMsg: string): SocialAgentErrorCode {
     lower.includes('file too large') ||
     lower.includes('413')
   ) {
-    return SocialAgentErrorCode.MEDIA_TOO_LARGE;
+    return OutpostErrorCode.MEDIA_TOO_LARGE;
   }
 
   if (
@@ -114,10 +114,10 @@ export function classifyError(errMsg: string): SocialAgentErrorCode {
     lower.includes('down') ||
     lower.includes('maintenance')
   ) {
-    return SocialAgentErrorCode.PLATFORM_DOWN;
+    return OutpostErrorCode.PLATFORM_DOWN;
   }
 
-  return SocialAgentErrorCode.PLATFORM_ERROR;
+  return OutpostErrorCode.PLATFORM_ERROR;
 }
 
 /**
@@ -130,23 +130,23 @@ export function buildAgentError(
   const errMsg = err instanceof Error ? err.message : String(err);
   const code = classifyError(errMsg);
 
-  const hints: Record<SocialAgentErrorCode, string> = {
-    [SocialAgentErrorCode.AUTH_EXPIRED]: `Token expired for ${platform}. Call POST /api/v1/accounts/connect/${platform} to re-authenticate.`,
-    [SocialAgentErrorCode.AUTH_INVALID]: `Token is invalid or revoked for ${platform}. The user must reconnect their account via POST /api/v1/accounts/connect/${platform}.`,
-    [SocialAgentErrorCode.RATE_LIMITED]: `Rate limit hit for ${platform}. Wait until retryAfter before posting again.`,
-    [SocialAgentErrorCode.ORG_QUOTA_EXCEEDED]: `Monthly post quota exceeded. Upgrade plan or wait until next month.`,
-    [SocialAgentErrorCode.CONTENT_TOO_LONG]: `Content exceeds ${platform}'s character limit. Shorten the text and retry.`,
-    [SocialAgentErrorCode.CONTENT_POLICY]: `${platform} rejected content due to policy violation. Review content and retry with different wording.`,
-    [SocialAgentErrorCode.MEDIA_TOO_LARGE]: `Media file exceeds ${platform}'s size limit. Compress or resize the file and retry.`,
-    [SocialAgentErrorCode.MEDIA_TYPE_UNSUPPORTED]: `${platform} does not support this media type. Check GET /api/v1/platforms/${platform}/capabilities for supported types.`,
-    [SocialAgentErrorCode.ACCOUNT_NOT_FOUND]: `Account not found. Check GET /api/v1/accounts to list connected accounts.`,
-    [SocialAgentErrorCode.PLATFORM_ERROR]: `${platform} returned an error. Check platform status and retry.`,
-    [SocialAgentErrorCode.PLATFORM_DOWN]: `${platform} appears to be down or in maintenance. Retry after a few minutes.`,
-    [SocialAgentErrorCode.SUBREDDIT_REQUIRED]: `Reddit posts require a subreddit. Include metadata.subreddit in the request.`,
-    [SocialAgentErrorCode.SUBREDDIT_NOT_FOUND]: `The subreddit does not exist or is private. Verify the subreddit name.`,
-    [SocialAgentErrorCode.VALIDATION_ERROR]: `Request validation failed. Check the request body and retry.`,
-    [SocialAgentErrorCode.TIER_INSUFFICIENT]: `Your current plan does not include this feature. Upgrade to access it.`,
-    [SocialAgentErrorCode.PLATFORM_QUOTA_EXCEEDED]: `Your plan allows a limited number of connected platforms. Disconnect one or upgrade your plan.`,
+  const hints: Record<OutpostErrorCode, string> = {
+    [OutpostErrorCode.AUTH_EXPIRED]: `Token expired for ${platform}. Call POST /api/v1/accounts/connect/${platform} to re-authenticate.`,
+    [OutpostErrorCode.AUTH_INVALID]: `Token is invalid or revoked for ${platform}. The user must reconnect their account via POST /api/v1/accounts/connect/${platform}.`,
+    [OutpostErrorCode.RATE_LIMITED]: `Rate limit hit for ${platform}. Wait until retryAfter before posting again.`,
+    [OutpostErrorCode.ORG_QUOTA_EXCEEDED]: `Monthly post quota exceeded. Upgrade plan or wait until next month.`,
+    [OutpostErrorCode.CONTENT_TOO_LONG]: `Content exceeds ${platform}'s character limit. Shorten the text and retry.`,
+    [OutpostErrorCode.CONTENT_POLICY]: `${platform} rejected content due to policy violation. Review content and retry with different wording.`,
+    [OutpostErrorCode.MEDIA_TOO_LARGE]: `Media file exceeds ${platform}'s size limit. Compress or resize the file and retry.`,
+    [OutpostErrorCode.MEDIA_TYPE_UNSUPPORTED]: `${platform} does not support this media type. Check GET /api/v1/platforms/${platform}/capabilities for supported types.`,
+    [OutpostErrorCode.ACCOUNT_NOT_FOUND]: `Account not found. Check GET /api/v1/accounts to list connected accounts.`,
+    [OutpostErrorCode.PLATFORM_ERROR]: `${platform} returned an error. Check platform status and retry.`,
+    [OutpostErrorCode.PLATFORM_DOWN]: `${platform} appears to be down or in maintenance. Retry after a few minutes.`,
+    [OutpostErrorCode.SUBREDDIT_REQUIRED]: `Reddit posts require a subreddit. Include metadata.subreddit in the request.`,
+    [OutpostErrorCode.SUBREDDIT_NOT_FOUND]: `The subreddit does not exist or is private. Verify the subreddit name.`,
+    [OutpostErrorCode.VALIDATION_ERROR]: `Request validation failed. Check the request body and retry.`,
+    [OutpostErrorCode.TIER_INSUFFICIENT]: `Your current plan does not include this feature. Upgrade to access it.`,
+    [OutpostErrorCode.PLATFORM_QUOTA_EXCEEDED]: `Your plan allows a limited number of connected platforms. Disconnect one or upgrade your plan.`,
   };
 
   return {

@@ -1,7 +1,7 @@
 /**
  * Tier limits — approved by Max (CRO) + Maya (CPO), March 25 2026
  *
- * These are the CANONICAL tier definitions for SocialAgent.
+ * These are the CANONICAL tier definitions for Outpost.
  * All quota checks MUST reference this file. Do not hardcode limits elsewhere.
  *
  * Quota enforcement is per-ORG, not per-social-account.

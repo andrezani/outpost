@@ -36,7 +36,7 @@ export class RedditProvider extends SocialProvider {
 
   private static readonly API_BASE = 'https://oauth.reddit.com';
   private static readonly AUTH_BASE = 'https://www.reddit.com';
-  private static readonly USER_AGENT = 'SocialAgent/1.0 (by u/socialagent_app)';
+  private static readonly USER_AGENT = 'Outpost/1.0 (by u/outpost_app)';
 
   private readonly clientId: string;
   private readonly clientSecret: string;

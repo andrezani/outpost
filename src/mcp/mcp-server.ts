@@ -1,7 +1,7 @@
 /**
- * SocialAgent MCP Server — stdio transport (Phase 1)
+ * Outpost MCP Server — stdio transport (Phase 1)
  *
- * Exposes SocialAgent API as Model Context Protocol tools for use in:
+ * Exposes Outpost API as Model Context Protocol tools for use in:
  * - Claude Desktop
  * - Cursor
  * - Any MCP-compatible agent framework
@@ -12,12 +12,12 @@
  * Config for Claude Desktop (~/.claude_desktop_config.json):
  * {
  *   "mcpServers": {
- *     "socialagent": {
+ *     "outpost": {
  *       "command": "node",
- *       "args": ["/path/to/socialagent/dist/mcp/mcp-server.js"],
+ *       "args": ["/path/to/outpost/dist/mcp/mcp-server.js"],
  *       "env": {
- *         "SOCIALAGENT_API_KEY": "sa_xxx",
- *         "SOCIALAGENT_BASE_URL": "http://localhost:3000"
+ *         "OUTPOST_API_KEY": "sa_xxx",
+ *         "OUTPOST_BASE_URL": "http://localhost:3000"
  *       }
  *     }
  *   }
@@ -26,10 +26,10 @@
  * Or via npx (once published):
  * {
  *   "mcpServers": {
- *     "socialagent": {
+ *     "outpost": {
  *       "command": "npx",
- *       "args": ["-y", "@socialagent/mcp-server"],
- *       "env": { "SOCIALAGENT_API_KEY": "sa_xxx" }
+ *       "args": ["-y", "@outpost/mcp-server"],
+ *       "env": { "OUTPOST_API_KEY": "sa_xxx" }
  *     }
  *   }
  * }
@@ -37,13 +37,13 @@
 
 import * as readline from 'readline';
 
-const BASE_URL = process.env.SOCIALAGENT_BASE_URL ?? 'http://localhost:3000';
-const API_KEY = process.env.SOCIALAGENT_API_KEY;
+const BASE_URL = process.env.OUTPOST_BASE_URL ?? 'http://localhost:3000';
+const API_KEY = process.env.OUTPOST_API_KEY;
 const API_PREFIX = `${BASE_URL}/api/v1`;
 
 if (!API_KEY) {
   process.stderr.write(
-    '[SocialAgent MCP] ERROR: SOCIALAGENT_API_KEY environment variable is required.\n',
+    '[Outpost MCP] ERROR: OUTPOST_API_KEY environment variable is required.\n',
   );
   process.exit(1);
 }
@@ -80,7 +80,7 @@ const TOOLS: McpTool[] = [
   {
     name: 'publish_post',
     description:
-      'Publish a post to a social media platform via SocialAgent. ' +
+      'Publish a post to a social media platform via Outpost. ' +
       'Supports X (Twitter), LinkedIn, Instagram, Reddit, Bluesky, and Threads. ' +
       'Always call list_accounts first to get a valid accountId. ' +
       'Returns postId, url, and publishedAt on success; error.code + agentHint on failure.',
@@ -318,7 +318,7 @@ async function handleRequest(req: McpRequest): Promise<void> {
             protocolVersion: '2024-11-05',
             capabilities: { tools: {} },
             serverInfo: {
-              name: 'socialagent',
+              name: 'outpost',
               version: '1.0.0',
             },
           },
@@ -392,7 +392,7 @@ const rl = readline.createInterface({
   terminal: false,
 });
 
-process.stderr.write('[SocialAgent MCP] Started. Waiting for requests on stdin.\n');
+process.stderr.write('[Outpost MCP] Started. Waiting for requests on stdin.\n');
 
 rl.on('line', (line: string) => {
   const trimmed = line.trim();
@@ -402,18 +402,18 @@ rl.on('line', (line: string) => {
   try {
     req = JSON.parse(trimmed) as McpRequest;
   } catch {
-    process.stderr.write(`[SocialAgent MCP] Failed to parse request: ${trimmed}\n`);
+    process.stderr.write(`[Outpost MCP] Failed to parse request: ${trimmed}\n`);
     return;
   }
 
   handleRequest(req).catch((err: unknown) => {
     process.stderr.write(
-      `[SocialAgent MCP] Unhandled error: ${err instanceof Error ? err.message : String(err)}\n`,
+      `[Outpost MCP] Unhandled error: ${err instanceof Error ? err.message : String(err)}\n`,
     );
   });
 });
 
 rl.on('close', () => {
-  process.stderr.write('[SocialAgent MCP] stdin closed. Exiting.\n');
+  process.stderr.write('[Outpost MCP] stdin closed. Exiting.\n');
   process.exit(0);
 });

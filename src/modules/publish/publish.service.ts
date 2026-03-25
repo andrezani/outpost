@@ -11,7 +11,7 @@ import { ProviderRegistry } from '../../providers/provider.registry';
 import { SocialPlatform } from '@prisma/client';
 import {
   buildAgentError,
-  SocialAgentErrorCode,
+  OutpostErrorCode,
 } from '../../common/errors';
 import { PublishRequestDto } from './publish.dto';
 import { WebhooksService } from '../webhooks/webhooks.service';
@@ -35,7 +35,7 @@ export interface PublishSuccessResponse {
 export interface PublishErrorResponse {
   success: false;
   error: {
-    code: SocialAgentErrorCode;
+    code: OutpostErrorCode;
     message: string;
     agentHint: string;
     retryAfter?: string;
@@ -89,7 +89,7 @@ export class PublishService {
         new Error('Monthly post quota exceeded'),
         dto.platform,
       );
-      errorPayload.code = SocialAgentErrorCode.ORG_QUOTA_EXCEEDED;
+      errorPayload.code = OutpostErrorCode.ORG_QUOTA_EXCEEDED;
       errorPayload.agentHint = `Monthly post quota of ${org.postQuota} exceeded. Quota resets on ${nextMonth.toISOString()}. Upgrade plan for higher limits.`;
       errorPayload.retryAfter = nextMonth.toISOString();
 
@@ -113,7 +113,7 @@ export class PublishService {
         {
           success: false,
           error: {
-            code: SocialAgentErrorCode.ACCOUNT_NOT_FOUND,
+            code: OutpostErrorCode.ACCOUNT_NOT_FOUND,
             message: `Account ${dto.accountId} not found or disabled`,
             agentHint: `Check GET /api/v1/accounts to list connected accounts for your organization.`,
           },
@@ -136,7 +136,7 @@ export class PublishService {
           {
             success: false,
             error: {
-              code: SocialAgentErrorCode.SUBREDDIT_REQUIRED,
+              code: OutpostErrorCode.SUBREDDIT_REQUIRED,
               message: 'Reddit posts require metadata.subreddit',
               agentHint: 'Include metadata.subreddit in the content object. Example: { "content": { "text": "...", "metadata": { "subreddit": "MachineLearning", "title": "..." } } }',
             },
@@ -149,7 +149,7 @@ export class PublishService {
           {
             success: false,
             error: {
-              code: SocialAgentErrorCode.VALIDATION_ERROR,
+              code: OutpostErrorCode.VALIDATION_ERROR,
               message: 'Reddit posts require metadata.title',
               agentHint: 'Include metadata.title in the content object.',
             },

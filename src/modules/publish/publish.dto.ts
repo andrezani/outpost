@@ -60,7 +60,7 @@ export class PostMetadataDto {
 export class PostContentDto {
   @ApiProperty({
     description: 'Post text content.',
-    example: 'Hello from SocialAgent! 🤖',
+    example: 'Hello from Outpost! 🤖',
   })
   @IsString()
   text!: string;

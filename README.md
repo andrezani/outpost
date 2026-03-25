@@ -1,12 +1,12 @@
-# SocialAgent
+# Outpost
 
 > **The social media API built for AI agents.** One endpoint. Six platforms. Native MCP support.
 
-Post to X, LinkedIn, Instagram, Reddit, Bluesky, and Threads — from any AI agent — with a single API call. SocialAgent understands agent needs: structured errors with `agentHint`, MCP native integration for Claude Desktop/Cursor, and per-org credential isolation (the thing Postiz literally cannot do).
+Post to X, LinkedIn, Instagram, Reddit, Bluesky, and Threads — from any AI agent — with a single API call. Outpost understands agent needs: structured errors with `agentHint`, MCP native integration for Claude Desktop/Cursor, and per-org credential isolation (the thing Postiz literally cannot do).
 
 ---
 
-## Why SocialAgent
+## Why Outpost
 
 - **Agent-native errors** — every failure returns `code` + `agentHint` so your LLM knows exactly what to do
 - **MCP server included** — works natively in Claude Desktop, Cursor, and any MCP-compatible agent
@@ -38,8 +38,8 @@ Post to X, LinkedIn, Instagram, Reddit, Bluesky, and Threads — from any AI age
 ### 1. Install
 
 ```bash
-git clone <repo-url> SocialAgent
-cd SocialAgent
+git clone <repo-url> Outpost
+cd Outpost
 npm install
 npx prisma generate
 ```
@@ -104,7 +104,7 @@ curl -X POST http://localhost:3000/api/v1/publish \
     "platform": "x",
     "accountId": "clxxx",
     "content": {
-      "text": "Hello from SocialAgent! 🤖"
+      "text": "Hello from Outpost! 🤖"
     }
   }'
 ```
@@ -231,12 +231,12 @@ Add to `~/.claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "socialagent": {
+    "outpost": {
       "command": "node",
-      "args": ["/path/to/SocialAgent/dist/mcp/mcp-server.js"],
+      "args": ["/path/to/Outpost/dist/mcp/mcp-server.js"],
       "env": {
-        "SOCIALAGENT_API_KEY": "sa_xxx",
-        "SOCIALAGENT_BASE_URL": "http://localhost:3000"
+        "OUTPOST_API_KEY": "sa_xxx",
+        "OUTPOST_BASE_URL": "http://localhost:3000"
       }
     }
   }
@@ -283,7 +283,7 @@ Deploy the full stack (app + postgres + redis) in 5 commands:
 
 ```bash
 # 1. Clone the repo
-git clone <repo-url> SocialAgent && cd SocialAgent
+git clone <repo-url> Outpost && cd Outpost
 
 # 2. Copy and fill in credentials
 cp .env.example .env

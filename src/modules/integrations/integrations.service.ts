@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
 import { Integration, SocialPlatform } from '@prisma/client';
-import { SocialAgentErrorCode } from '../../common/errors';
+import { OutpostErrorCode } from '../../common/errors';
 import type { OrgTier as TierKey } from '../../common/tier-limits';
 import { getPlatformQuota } from '../../common/tier-limits';
 
@@ -82,7 +82,7 @@ export class IntegrationsService {
           {
             success: false,
             error: {
-              code: SocialAgentErrorCode.PLATFORM_QUOTA_EXCEEDED,
+              code: OutpostErrorCode.PLATFORM_QUOTA_EXCEEDED,
               message: `Your ${org.tier} plan allows up to ${tierQuota} connected platforms. You have ${activeCount}.`,
               agentHint:
                 'Disconnect an existing platform integration or upgrade your plan. ' +

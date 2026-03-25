@@ -24,7 +24,7 @@ import type { CreateWebhookDto } from './webhooks.service';
 import type { AuthenticatedRequest } from '../../middleware/api-key.middleware';
 import { webhooksEnabled } from '../../common/tier-limits';
 import type { OrgTier as TierKey } from '../../common/tier-limits';
-import { SocialAgentErrorCode } from '../../common/errors';
+import { OutpostErrorCode } from '../../common/errors';
 
 @ApiTags('Webhooks')
 @ApiBearerAuth()
@@ -48,7 +48,7 @@ export class WebhooksController {
     description:
       'Register an HTTPS endpoint to receive post events.\n\n' +
       '**Requires Team tier or above.**\n\n' +
-      'Payloads are signed with HMAC-SHA256 (header: `X-SocialAgent-Signature`). ' +
+      'Payloads are signed with HMAC-SHA256 (header: `X-Outpost-Signature`). ' +
       'Delivery is retried 3 times with exponential backoff (1s → 5s → 30s).',
   })
   @ApiBody({
@@ -92,7 +92,7 @@ export class WebhooksController {
         {
           success: false,
           error: {
-            code: SocialAgentErrorCode.TIER_INSUFFICIENT,
+            code: OutpostErrorCode.TIER_INSUFFICIENT,
             message: 'Webhooks require Team tier or above.',
             agentHint:
               'Upgrade to the Team plan ($99/mo) to enable webhook delivery. ' +

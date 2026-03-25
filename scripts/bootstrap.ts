@@ -65,7 +65,7 @@ async function main(): Promise<void> {
     console.log(`✅ API Key:     ${org.apiKey}`);
     console.log(`✅ Tier:        ${org.tier} (${org.postQuota} posts/mo)\n`);
     console.log(
-      `💡 Add to your .env:  SOCIALAGENT_API_KEY="${org.apiKey}"\n`,
+      `💡 Add to your .env:  OUTPOST_API_KEY="${org.apiKey}"\n`,
     );
   } finally {
     await prisma.$disconnect();

@@ -28,7 +28,7 @@ async function bootstrap(): Promise<void> {
 
   // ─── Swagger / OpenAPI ──────────────────────────────────────────────────────
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('SocialAgent API')
+    .setTitle('Outpost API')
     .setDescription(
       'The social media API built for AI agents. ' +
         'One endpoint. Six platforms. Native MCP support.\n\n' +
@@ -53,7 +53,7 @@ async function bootstrap(): Promise<void> {
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
-  logger.log(`🚀 SocialAgent API running on http://localhost:${port}/api/v1`);
+  logger.log(`🚀 Outpost API running on http://localhost:${port}/api/v1`);
   logger.log(`📖 Swagger UI:           http://localhost:${port}/api`);
   logger.log(`📄 OpenAPI JSON:         http://localhost:${port}/api-json`);
 }

@@ -183,7 +183,7 @@ describe('InstagramProvider', () => {
 
       const result = await provider.publish(
         ACCESS_TOKEN,
-        'Hello from SocialAgent 🔥',
+        'Hello from Outpost 🔥',
         { imageUrl: 'https://example.com/image.jpg' },
       );
 

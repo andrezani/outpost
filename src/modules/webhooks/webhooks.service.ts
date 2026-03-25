@@ -25,7 +25,7 @@ export interface WebhookPayload {
  * Manages webhook registrations and delivers events with retries.
  *
  * Retry strategy: 3 attempts with exponential backoff (1s, 5s, 30s).
- * Signature: X-SocialAgent-Signature: sha256=<HMAC-SHA256(secret, payload)>
+ * Signature: X-Outpost-Signature: sha256=<HMAC-SHA256(secret, payload)>
  */
 @Injectable()
 export class WebhooksService {
@@ -125,9 +125,9 @@ export class WebhooksService {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-SocialAgent-Signature': `sha256=${signature}`,
-            'X-SocialAgent-Event': payload.event,
-            'X-SocialAgent-Attempt': String(attempt + 1),
+            'X-Outpost-Signature': `sha256=${signature}`,
+            'X-Outpost-Event': payload.event,
+            'X-Outpost-Attempt': String(attempt + 1),
           },
           body,
           signal: AbortSignal.timeout(10_000), // 10s timeout per attempt
@@ -157,7 +157,7 @@ export class WebhooksService {
 
   /**
    * HMAC-SHA256 signature for webhook verification.
-   * Verify on your end: sha256(secret, body) === X-SocialAgent-Signature.split('sha256=')[1]
+   * Verify on your end: sha256(secret, body) === X-Outpost-Signature.split('sha256=')[1]
    */
   private sign(secret: string, body: string): string {
     return createHmac('sha256', secret).update(body, 'utf-8').digest('hex');

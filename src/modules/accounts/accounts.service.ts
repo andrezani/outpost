@@ -391,7 +391,7 @@ export class AccountsService {
       headers: {
         Authorization: `Basic ${credentials}`,
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'SocialAgent/1.0',
+        'User-Agent': 'Outpost/1.0',
       },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
