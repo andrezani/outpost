@@ -4,6 +4,27 @@ Rex (CTO), Hibernyte — task log for SocialAgent repo.
 
 ---
 
+## 2026-03-25 (Phase 3a)
+
+### Task: Outpost Phase 3a — checkout-session, portal, payment_succeeded, idempotency, webhook tests
+
+**Completed:**
+- `POST /api/v1/billing/create-checkout-session` — hosted Stripe Checkout page; creates/reuses customer, returns `{ url }`
+- `POST /api/v1/billing/portal` — Stripe Billing Portal session; requires existing `org.paymentId`, returns `{ url }`
+- `StripeService.createCheckoutSession` + `createPortalSession` methods added
+- `invoice.payment_succeeded` webhook handler — logs customerId, amount_paid, invoiceId (no tier change; subscription events handle that)
+- In-memory idempotency guard on `StripeWebhookController` via `Set<string> processedEventIds` (comment: use Redis/DB in production)
+- `test/billing/stripe-webhook.controller.spec.ts` — 10 unit tests covering all event types, idempotency, invalid sig, missing rawBody
+- Jest `roots` updated in `package.json` to include `test/` alongside `src/`
+- `.env.example` — added `STRIPE_PORTAL_ENABLED=true` with setup comment
+- `billing.module.ts` description updated to list all 5 endpoints
+- TSC: 0 errors ✅ | Tests: 106/106 pass ✅ (10 new)
+
+**Commit:** 71b9da3
+**Branch:** dev
+
+---
+
 ## 2026-03-25 (Billing)
 
 ### Task: Stripe billing module (Pro $29/mo + Team $99/mo + Founding $49/mo)

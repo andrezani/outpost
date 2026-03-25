@@ -4,6 +4,7 @@ import { StripeService } from './billing.service';
 import { TierService } from './tier.service';
 import { BillingController } from './billing.controller';
 import { StripeWebhookController } from './stripe-webhook.controller';
+import { PublicController } from './public.controller';
 import { CommonModule } from '../../common/common.module';
 
 /**
@@ -17,6 +18,7 @@ import { CommonModule } from '../../common/common.module';
  *   POST   /api/v1/billing/create-checkout-session  — create a Stripe Checkout session (hosted payment page)
  *   POST   /api/v1/billing/portal                   — create a Stripe Billing Portal session
  *   POST   /api/v1/webhooks/stripe                  — Stripe webhook receiver
+ *   GET    /api/v1/public/founding-seats             — unauthenticated founding seat counter (landing page)
  *
  * Guard pattern: if STRIPE_SECRET_KEY is not set in the environment, the app
  * boots normally and billing endpoints return a 400 with a clear message.
@@ -25,7 +27,7 @@ import { CommonModule } from '../../common/common.module';
 @Module({
   imports: [ConfigModule, CommonModule],
   providers: [StripeService, TierService],
-  controllers: [BillingController, StripeWebhookController],
+  controllers: [BillingController, StripeWebhookController, PublicController],
   exports: [StripeService, TierService],
 })
 export class BillingModule {}
