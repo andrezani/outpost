@@ -1,0 +1,140 @@
+/**
+ * Outpost Landing Page — app.js
+ * 
+ * Handles:
+ * 1. Stripe checkout link wiring (swap placeholders with real URLs when available)
+ * 2. Founding rate seat counter (fetches from API or falls back to static)
+ * 3. Smooth nav highlighting
+ */
+
+// ─────────────────────────────────────────────
+// CONFIG — swap these when Stripe account is ready
+// ─────────────────────────────────────────────
+const STRIPE_LINKS = {
+  pro: null,   // TODO: 'https://buy.stripe.com/XXX' — Pro $29/mo
+  team: null,  // TODO: 'https://buy.stripe.com/XXX' — Team $99/mo
+  teamFounding: null, // TODO: 'https://buy.stripe.com/XXX' — Team Founding $49/mo
+};
+
+// API base URL — set when domain is registered
+const API_BASE = null; // TODO: 'https://api.outpost.dev'
+
+// Founding seats total
+const FOUNDING_SEATS_TOTAL = 50;
+
+// ─────────────────────────────────────────────
+// Wire Stripe CTAs
+// ─────────────────────────────────────────────
+function wireStripeCTAs() {
+  const proCta = document.getElementById('cta-pro');
+  const teamCta = document.getElementById('cta-team');
+
+  if (STRIPE_LINKS.pro && proCta) {
+    proCta.href = STRIPE_LINKS.pro;
+    proCta.target = '_blank';
+    proCta.rel = 'noopener';
+  } else if (proCta) {
+    // Stripe not yet configured — link to early access signup placeholder
+    proCta.href = 'mailto:hello@outpost.dev?subject=Outpost Pro Early Access';
+  }
+
+  if (teamCta) {
+    const teamLink = STRIPE_LINKS.teamFounding || STRIPE_LINKS.team;
+    if (teamLink) {
+      teamCta.href = teamLink;
+      teamCta.target = '_blank';
+      teamCta.rel = 'noopener';
+    } else {
+      teamCta.href = 'mailto:hello@outpost.dev?subject=Outpost Team Early Access';
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// Founding seat counter
+// ─────────────────────────────────────────────
+async function loadFoundingCount() {
+  const countEl = document.getElementById('founding-count');
+  const badgeEl = document.getElementById('founding-badge');
+  
+  if (!countEl || !badgeEl) return;
+
+  if (!API_BASE) {
+    // API not configured yet — show full seats (no customers yet)
+    countEl.textContent = FOUNDING_SEATS_TOTAL;
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/public/founding-seats`, {
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!res.ok) throw new Error('API error');
+    const { remaining } = await res.json();
+    countEl.textContent = remaining;
+    
+    // Hide badge if no founding rate active or seats exhausted
+    if (remaining <= 0) {
+      badgeEl.style.display = 'none';
+    }
+  } catch {
+    // Silently fail — static fallback is fine
+    countEl.textContent = FOUNDING_SEATS_TOTAL;
+  }
+}
+
+// ─────────────────────────────────────────────
+// Active nav section highlighting
+// ─────────────────────────────────────────────
+function initNavHighlight() {
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  if (!sections.length || !navLinks.length) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          navLinks.forEach((link) => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${entry.target.id}`) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    },
+    { threshold: 0.5 }
+  );
+
+  sections.forEach((s) => observer.observe(s));
+}
+
+// ─────────────────────────────────────────────
+// Copy-to-clipboard for API key placeholder
+// ─────────────────────────────────────────────
+function initCodeCopy() {
+  document.querySelectorAll('.code-block').forEach((block) => {
+    block.style.cursor = 'pointer';
+    block.title = 'Click to copy';
+    block.addEventListener('click', () => {
+      const text = block.textContent || '';
+      navigator.clipboard.writeText(text).then(() => {
+        const original = block.style.outline;
+        block.style.outline = '1px solid #6c63ff';
+        setTimeout(() => { block.style.outline = original; }, 800);
+      });
+    });
+  });
+}
+
+// ─────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  wireStripeCTAs();
+  loadFoundingCount();
+  initNavHighlight();
+  initCodeCopy();
+});
