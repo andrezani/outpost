@@ -2,7 +2,6 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  BadRequestException,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
@@ -124,8 +123,16 @@ export class PublishService {
 
     // 3. Validate platform matches
     if (integration.identifier !== dto.platform) {
-      throw new BadRequestException(
-        `Account ${dto.accountId} is connected to ${integration.identifier}, not ${dto.platform}`,
+      throw new HttpException(
+        {
+          success: false,
+          error: {
+            code: OutpostErrorCode.VALIDATION_ERROR,
+            message: `Account ${dto.accountId} is connected to ${integration.identifier}, not ${dto.platform}`,
+            agentHint: `The accountId you provided is for ${integration.identifier}, not ${dto.platform}. Call GET /api/v1/accounts to find the correct accountId for ${dto.platform}.`,
+          },
+        },
+        HttpStatus.BAD_REQUEST,
       );
     }
 
