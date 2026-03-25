@@ -127,3 +127,12 @@ Rex (CTO), Hibernyte — task log for SocialAgent repo.
 - All 39 tests pass | TSC: 0 errors
 **Commit:** b7648f5
 **Branch:** dev
+
+### Task: SocialAgent → Outpost rename
+**Completed:**
+- Renamed all `SocialAgent`/`socialagent`/`SOCIALAGENT` references to `Outpost`/`outpost`/`OUTPOST` across 16 files
+- Files touched: main.ts, mcp-server.ts, errors.ts (OutpostErrorCode), tier-limits.ts, reddit.provider.ts, publish.service.ts, publish.dto.ts, accounts.service.ts, integrations.service.ts, webhooks.controller.ts, webhooks.service.ts, README.md, docker-compose.yml, .env, .env.example, instagram.provider.spec.ts
+- AGENT_LOG.md intentionally left (historical record — prior name is context, not product copy)
+- TSC: 0 errors ✅
+**Commit:** 38ef5b0
+**Branch:** dev
