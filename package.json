@@ -1,10 +1,10 @@
 {
   "name": "outpost",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Social media API and MCP server for AI agents. Publish to X, Instagram, LinkedIn, Reddit, Bluesky, and Threads from a single endpoint.",
+  "author": "Hibernyte",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -85,5 +85,10 @@
       "<rootDir>",
       "<rootDir>/../test"
     ]
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andrezani/outpost.git"
+  },
+  "homepage": "https://outpost.dev"
 }

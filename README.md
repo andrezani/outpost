@@ -12,7 +12,7 @@ Post to X, LinkedIn, Instagram, Reddit, Bluesky, and Threads — from any AI age
 
 ```bash
 # Self-host with Docker (Postgres + Redis included):
-git clone <repo-url> Outpost && cd Outpost && cp .env.example .env && docker compose up -d && docker compose exec app npm run seed:admin
+git clone https://github.com/andrezani/outpost Outpost && cd Outpost && cp .env.example .env && docker compose up -d && docker compose exec app npm run seed:admin
 ```
 
 Then post to any platform:
@@ -57,7 +57,7 @@ curl -X POST http://localhost:3000/api/v1/publish \
 ### 1. Install
 
 ```bash
-git clone <repo-url> Outpost
+git clone https://github.com/andrezani/outpost Outpost
 cd Outpost
 npm install
 npx prisma generate
@@ -339,7 +339,7 @@ Deploy the full stack (app + postgres + redis) in 5 commands:
 
 ```bash
 # 1. Clone the repo
-git clone <repo-url> Outpost && cd Outpost
+git clone https://github.com/andrezani/outpost Outpost && cd Outpost
 
 # 2. Copy and fill in credentials
 cp .env.example .env
@@ -382,4 +382,4 @@ Pre-commit hook runs `prisma generate` + `tsc --noEmit` automatically.
 
 ## License
 
-UNLICENSED — private repo.
+MIT — see [LICENSE](./LICENSE).
