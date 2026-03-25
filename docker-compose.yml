@@ -1,6 +1,45 @@
 version: '3.9'
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: socialagent_app
+    restart: unless-stopped
+    ports:
+      - '${PORT:-3000}:3000'
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://socialagent:socialagent@postgres:5432/socialagent
+      REDIS_URL: redis://redis:6379
+      PORT: 3000
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      # Social platform credentials — copy from .env
+      X_CLIENT_ID: ${X_CLIENT_ID:-}
+      X_CLIENT_SECRET: ${X_CLIENT_SECRET:-}
+      REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID:-}
+      REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET:-}
+      INSTAGRAM_CLIENT_ID: ${INSTAGRAM_CLIENT_ID:-}
+      INSTAGRAM_CLIENT_SECRET: ${INSTAGRAM_CLIENT_SECRET:-}
+      THREADS_CLIENT_ID: ${THREADS_CLIENT_ID:-}
+      THREADS_CLIENT_SECRET: ${THREADS_CLIENT_SECRET:-}
+      LINKEDIN_CLIENT_ID: ${LINKEDIN_CLIENT_ID:-}
+      LINKEDIN_CLIENT_SECRET: ${LINKEDIN_CLIENT_SECRET:-}
+      SOCIALAGENT_BASE_URL: ${SOCIALAGENT_BASE_URL:-http://localhost:3000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/api/v1/health || exit 1']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   postgres:
     image: postgres:16-alpine
     container_name: socialagent_postgres

@@ -277,6 +277,33 @@ Each platform requires its own developer app. Add credentials to `.env`.
 
 ---
 
+## Self-Host with Docker
+
+Deploy the full stack (app + postgres + redis) in 5 commands:
+
+```bash
+# 1. Clone the repo
+git clone <repo-url> SocialAgent && cd SocialAgent
+
+# 2. Copy and fill in credentials
+cp .env.example .env
+# Edit .env — add your social platform client IDs/secrets
+
+# 3. Start everything
+docker compose up -d
+
+# 4. Seed your admin org + get API key
+docker compose exec app npm run seed:admin
+
+# 5. Open Swagger playground
+open http://localhost:3000/api
+```
+
+> The app container runs `prisma migrate deploy` automatically on startup.
+> Postgres and Redis data persist in named Docker volumes across restarts.
+
+---
+
 ## Development
 
 ```bash

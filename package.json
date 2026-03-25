@@ -18,20 +18,23 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed:admin": "ts-node -r tsconfig-paths/register scripts/bootstrap.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.2.6",
     "@prisma/client": "^7.5.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "inngest": "^4.0.5",
     "ioredis": "^5.10.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
