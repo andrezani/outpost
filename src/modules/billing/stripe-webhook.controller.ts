@@ -35,6 +35,9 @@ import type { OrgTier as TierKey } from '../../common/tier-limits';
 export class StripeWebhookController {
   private readonly logger = new Logger(StripeWebhookController.name);
 
+  // In-memory idempotency guard — for production, use Redis or a DB-backed event log
+  private readonly processedEventIds = new Set<string>();
+
   constructor(
     private readonly stripeService: StripeService,
     private readonly tierService: TierService,
@@ -82,6 +85,14 @@ export class StripeWebhookController {
       return;
     }
 
+    // Idempotency: skip duplicate events (Stripe may retry on network errors)
+    if (this.processedEventIds.has(event.id)) {
+      this.logger.log(`Duplicate Stripe event skipped: ${event.id}`);
+      res.status(HttpStatus.OK).json({ received: true, duplicate: true });
+      return;
+    }
+    this.processedEventIds.add(event.id);
+
     this.logger.log(`Stripe event received: ${event.type} (${event.id})`);
 
     try {
@@ -111,6 +122,10 @@ export class StripeWebhookController {
 
       case 'customer.subscription.deleted':
         await this.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
+        break;
+
+      case 'invoice.payment_succeeded':
+        await this.handlePaymentSucceeded(event.data.object as Stripe.Invoice);
         break;
 
       case 'invoice.payment_failed':
@@ -200,6 +215,17 @@ export class StripeWebhookController {
     this.logger.log(
       `subscription.deleted: org downgraded to free (customer: ${customerId}, sub: ${subscription.id})`,
     );
+  }
+
+  private async handlePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
+    const customerId = this.resolveCustomerId(invoice.customer);
+    const amount = invoice.amount_paid;
+
+    this.logger.log(
+      `invoice.payment_succeeded: customer ${customerId ?? 'unknown'}, ` +
+        `amount: ${amount}, invoice: ${invoice.id}`,
+    );
+    // No tier change needed — subscription events (created/updated) handle tier state.
   }
 
   private async handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {

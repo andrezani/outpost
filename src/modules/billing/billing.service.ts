@@ -115,6 +115,51 @@ export class StripeService {
     return subscription;
   }
 
+  // ─── Checkout & Portal ─────────────────────────────────────────────────────
+
+  /**
+   * Create a Stripe Checkout session for a hosted payment page.
+   * @param customerId  Stripe customer ID
+   * @param priceId     Stripe Price ID
+   * @param successUrl  Redirect URL after successful payment
+   * @param cancelUrl   Redirect URL if user cancels
+   */
+  async createCheckoutSession(
+    customerId: string,
+    priceId: string,
+    successUrl: string,
+    cancelUrl: string,
+  ): Promise<Stripe.Checkout.Session> {
+    const stripe = this.requireStripe();
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      customer: customerId,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+    });
+    this.logger.log(`Checkout session created: ${session.id} (customer: ${customerId})`);
+    return session;
+  }
+
+  /**
+   * Create a Stripe Billing Portal session so the customer can manage their subscription.
+   * @param customerId  Stripe customer ID
+   * @param returnUrl   URL to return to after leaving the portal
+   */
+  async createPortalSession(
+    customerId: string,
+    returnUrl: string,
+  ): Promise<Stripe.BillingPortal.Session> {
+    const stripe = this.requireStripe();
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: returnUrl,
+    });
+    this.logger.log(`Portal session created for customer: ${customerId}`);
+    return session;
+  }
+
   // ─── Webhooks ──────────────────────────────────────────────────────────────
 
   /**

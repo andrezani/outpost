@@ -16,11 +16,28 @@ import {
   ApiSecurity,
   ApiBody,
 } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString, IsEmail } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsUrl, IsEmail } from 'class-validator';
 import { StripeService } from './billing.service';
 import { TierService } from './tier.service';
 import { PrismaService } from '../../common/prisma.service';
 import type { AuthenticatedRequest } from '../../middleware/api-key.middleware';
+
+export class CreateCheckoutSessionDto {
+  @IsEnum(['pro', 'team', 'founding'], {
+    message: 'plan must be one of: pro, team, founding',
+  })
+  plan!: 'pro' | 'team' | 'founding';
+
+  @IsString()
+  successUrl!: string;
+
+  @IsString()
+  cancelUrl!: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+}
 
 export class SubscribeDto {
   @IsEnum(['pro', 'team', 'founding'], {
@@ -43,6 +60,114 @@ export class BillingController {
     private readonly tier: TierService,
     private readonly prisma: PrismaService,
   ) {}
+
+  /**
+   * POST /api/v1/billing/create-checkout-session
+   *
+   * Creates a Stripe Checkout session for the authenticated org.
+   * Returns a hosted payment URL to redirect the user to.
+   */
+  @Post('create-checkout-session')
+  @ApiOperation({
+    summary: 'Create Stripe Checkout session',
+    description:
+      'Creates a Stripe Checkout session for the authenticated organization.\n\n' +
+      'Returns a `url` to redirect the user to for hosted payment.\n\n' +
+      '**Plans:** `pro` ($29/mo), `team` ($99/mo), `founding` ($49/mo).',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['plan', 'successUrl', 'cancelUrl'],
+      properties: {
+        plan: { type: 'string', enum: ['pro', 'team', 'founding'], example: 'pro' },
+        successUrl: { type: 'string', example: 'https://app.example.com/billing/success' },
+        cancelUrl: { type: 'string', example: 'https://app.example.com/billing/cancel' },
+        email: { type: 'string', format: 'email', example: 'billing@yourcompany.com' },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Checkout session created. Redirect user to `url`.' })
+  @ApiResponse({ status: 400, description: 'Invalid plan or Stripe not configured.' })
+  @ApiResponse({ status: 401, description: 'Invalid or missing API key.' })
+  async createCheckoutSession(
+    @Body() dto: CreateCheckoutSessionDto,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<{ url: string }> {
+    const org = req.organization;
+
+    const priceId = this.stripe.getPriceId(dto.plan);
+    if (!priceId) {
+      throw new BadRequestException(
+        `Stripe price ID for plan "${dto.plan}" is not configured. ` +
+          `Set STRIPE_${dto.plan.toUpperCase()}_PRICE_ID in .env.`,
+      );
+    }
+
+    // Create or reuse Stripe customer
+    let customerId = org.paymentId;
+    if (!customerId) {
+      const customer = await this.stripe.createCustomer(org.id, dto.email);
+      customerId = customer.id;
+      await this.prisma.organization.update({
+        where: { id: org.id },
+        data: { paymentId: customerId },
+      });
+    }
+
+    const session = await this.stripe.createCheckoutSession(
+      customerId,
+      priceId,
+      dto.successUrl,
+      dto.cancelUrl,
+    );
+
+    return { url: session.url ?? '' };
+  }
+
+  /**
+   * POST /api/v1/billing/portal
+   *
+   * Creates a Stripe Billing Portal session for the authenticated org.
+   * Requires an existing Stripe customer (org must have subscribed first).
+   */
+  @Post('portal')
+  @ApiOperation({
+    summary: 'Create Stripe Billing Portal session',
+    description:
+      'Creates a Stripe Billing Portal session so the customer can manage their subscription, ' +
+      'update payment details, or cancel.\n\n' +
+      'Requires the organization to have an existing Stripe customer (must have subscribed first).',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['returnUrl'],
+      properties: {
+        returnUrl: {
+          type: 'string',
+          example: 'https://app.example.com/settings/billing',
+          description: 'URL to return to after leaving the portal',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Portal session created. Redirect user to `url`.' })
+  @ApiResponse({ status: 400, description: 'No billing account found or Stripe not configured.' })
+  @ApiResponse({ status: 401, description: 'Invalid or missing API key.' })
+  async createPortalSession(
+    @Body() body: { returnUrl: string },
+    @Req() req: AuthenticatedRequest,
+  ): Promise<{ url: string }> {
+    const org = req.organization;
+
+    if (!org.paymentId) {
+      throw new BadRequestException('No billing account found — subscribe first.');
+    }
+
+    const session = await this.stripe.createPortalSession(org.paymentId, body.returnUrl);
+    return { url: session.url };
+  }
 
   /**
    * POST /api/v1/billing/subscribe

@@ -12,9 +12,11 @@ import { CommonModule } from '../../common/common.module';
  * Provides Stripe billing integration for Outpost.
  *
  * Exposes:
- *   POST   /api/v1/billing/subscribe   — subscribe to a plan
- *   DELETE /api/v1/billing/cancel      — cancel subscription
- *   POST   /api/v1/webhooks/stripe     — Stripe webhook receiver
+ *   POST   /api/v1/billing/subscribe                — subscribe to a plan (returns subscription + client_secret)
+ *   DELETE /api/v1/billing/cancel                   — cancel subscription at period end
+ *   POST   /api/v1/billing/create-checkout-session  — create a Stripe Checkout session (hosted payment page)
+ *   POST   /api/v1/billing/portal                   — create a Stripe Billing Portal session
+ *   POST   /api/v1/webhooks/stripe                  — Stripe webhook receiver
  *
  * Guard pattern: if STRIPE_SECRET_KEY is not set in the environment, the app
  * boots normally and billing endpoints return a 400 with a clear message.
