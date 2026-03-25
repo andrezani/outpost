@@ -1,8 +1,27 @@
 # Outpost
 
-> **The social media API built for AI agents.** One endpoint. Six platforms. Native MCP support.
+> **Social media API and MCP server for AI agents. Publish to X, Instagram, LinkedIn, Reddit, Bluesky, and Threads from a single endpoint.**
 
 Post to X, LinkedIn, Instagram, Reddit, Bluesky, and Threads — from any AI agent — with a single API call. Outpost understands agent needs: structured errors with `agentHint`, MCP native integration for Claude Desktop/Cursor, and per-org credential isolation (the thing Postiz literally cannot do).
+
+<!-- tags: social-media, mcp, multi-platform, agents, publish, ai-agents, oauth, webhooks -->
+
+---
+
+## One-Liner Quickstart
+
+```bash
+# Self-host with Docker (Postgres + Redis included):
+git clone <repo-url> Outpost && cd Outpost && cp .env.example .env && docker compose up -d && docker compose exec app npm run seed:admin
+```
+
+Then post to any platform:
+```bash
+curl -X POST http://localhost:3000/api/v1/publish \
+  -H "X-API-Key: sa_xxx" \
+  -H "Content-Type: application/json" \
+  -d '{"platform":"x","accountId":"<id>","content":{"text":"Hello from Outpost!"}}'
+```
 
 ---
 
@@ -226,8 +245,16 @@ Delivery: 3 retries with exponential backoff (1s → 5s → 30s). HMAC-SHA256 si
 
 ## MCP Server (Claude Desktop / Cursor)
 
-Add to `~/.claude_desktop_config.json`:
+Outpost ships a built-in MCP server — use it with Claude Desktop, Cursor, or any MCP-compatible agent.
 
+**Step 1:** Build the MCP server
+```bash
+npm run build
+```
+
+**Step 2:** Add to your MCP config:
+
+**Claude Desktop** (`~/.claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
@@ -238,6 +265,35 @@ Add to `~/.claude_desktop_config.json`:
         "OUTPOST_API_KEY": "sa_xxx",
         "OUTPOST_BASE_URL": "http://localhost:3000"
       }
+    }
+  }
+}
+```
+
+**Cursor** (`.cursor/mcp.json` in your project or `~/.cursor/mcp.json` globally):
+```json
+{
+  "mcpServers": {
+    "outpost": {
+      "command": "node",
+      "args": ["/path/to/Outpost/dist/mcp/mcp-server.js"],
+      "env": {
+        "OUTPOST_API_KEY": "sa_xxx",
+        "OUTPOST_BASE_URL": "http://localhost:3000"
+      }
+    }
+  }
+}
+```
+
+Once published to npm, use `npx` instead:
+```json
+{
+  "mcpServers": {
+    "outpost": {
+      "command": "npx",
+      "args": ["-y", "@outpost/mcp-server"],
+      "env": { "OUTPOST_API_KEY": "sa_xxx" }
     }
   }
 }
