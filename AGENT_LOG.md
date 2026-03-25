@@ -1,3 +1,31 @@
+# AGENT_LOG.md — Outpost
+
+---
+
+## 2026-03-25 (agentHint audit + glama.ai prep)
+
+### Task: agentHint audit (all 6 providers) + glama.ai README submission prep
+**Task ID:** 977c820f-756e-4c53-9142-741707a53ffd
+
+**Part 1 — agentHint audit:**
+- Audited all 6 providers (X, Instagram, LinkedIn, Reddit, Bluesky, Threads)
+- Finding: all provider errors flow through `buildAgentError()` in `publish.service.ts` — `agentHint` IS always present in error responses
+- Fixed one gap: platform mismatch check at line 127 was throwing raw `BadRequestException` (no `agentHint`). Converted to structured `HttpException` with `code: VALIDATION_ERROR` + `agentHint: 'Call GET /api/v1/accounts to find the correct accountId'`
+- Removed unused `BadRequestException` import from `publish.service.ts`
+- TSC: 0 errors ✅ | Tests: 106/106 pass ✅
+- **Commit:** 1717a65
+
+**Part 2 — glama.ai README submission prep:**
+- README: updated tagline to glama.ai-optimized description
+- README: added tags comment, one-liner Docker quickstart, Claude Desktop + Cursor MCP configs
+- `brain/agents/rex/outpost-glama-submission.md`: full submission brief with description, tags, Sociona competitor intel, action checklist
+- TSC: 0 errors ✅ | Tests: 106/106 pass ✅
+- **Commit:** b98140d
+
+**Branch:** dev
+
+---
+
 # AGENT_LOG.md — SocialAgent
 
 Rex (CTO), Hibernyte — task log for SocialAgent repo.
