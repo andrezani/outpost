@@ -10,6 +10,7 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { PublisherModule } from './modules/publisher/publisher.module';
 import { ApiKeyMiddleware } from './middleware/api-key.middleware';
 import { HealthController } from './health/health.controller';
 
@@ -21,6 +22,7 @@ import { HealthController } from './health/health.controller';
     IntegrationsModule,
     PostsModule,
     AuthModule,
+    PublisherModule,
   ],
   controllers: [HealthController],
 })
