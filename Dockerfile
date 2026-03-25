@@ -25,6 +25,10 @@ RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# Copy the prisma CLI from builder so we can run migrate deploy at startup
+# prisma is a devDependency (omitted above) — we need the binary, not the module
+COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY prisma ./prisma
 
 # Non-root user for security
@@ -34,4 +38,5 @@ USER socialagent
 EXPOSE 3000
 
 # Run migrations then start (migrations are idempotent)
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+# Use local prisma binary (not npx) — reliable in air-gapped/offline prod envs
+CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy && node dist/main"]
