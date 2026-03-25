@@ -33,10 +33,9 @@ function wireStripeCTAs() {
     proCta.href = STRIPE_LINKS.pro;
     proCta.target = '_blank';
     proCta.rel = 'noopener';
-  } else if (proCta) {
-    // Stripe not yet configured — link to early access signup placeholder
-    proCta.href = 'mailto:hello@outpost.dev?subject=Outpost Pro Early Access';
+    proCta.textContent = 'Start Pro →';
   }
+  // If Stripe not configured, cta-pro already points to #waitlist in HTML
 
   if (teamCta) {
     const teamLink = STRIPE_LINKS.teamFounding || STRIPE_LINKS.team;
@@ -44,10 +43,10 @@ function wireStripeCTAs() {
       teamCta.href = teamLink;
       teamCta.target = '_blank';
       teamCta.rel = 'noopener';
-    } else {
-      teamCta.href = 'mailto:hello@outpost.dev?subject=Outpost Team Early Access';
+      teamCta.textContent = 'Start Team →';
     }
   }
+  // If Stripe not configured, cta-team already points to #waitlist in HTML
 }
 
 // ─────────────────────────────────────────────

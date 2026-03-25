@@ -26,7 +26,7 @@
         <a href="#docs">Docs</a>
         <a href="#quickstart">Quick Start</a>
       </div>
-      <a href="#pricing" class="btn btn-sm btn-primary">Get API Key</a>
+      <a href="#waitlist" class="btn btn-sm btn-primary">Join Waitlist</a>
     </div>
   </nav>
 
@@ -40,7 +40,7 @@
         LLM workflow, or MCP client. One API. Six platforms. No dashboard required.
       </p>
       <div class="hero-ctas">
-        <a href="#pricing" class="btn btn-primary btn-lg">Get API Key</a>
+        <a href="#waitlist" class="btn btn-primary btn-lg">Join the Waitlist</a>
         <a href="#quickstart" class="btn btn-ghost btn-lg">View Docs →</a>
       </div>
       <p class="hero-problem">
@@ -100,7 +100,7 @@
         <div class="quickstart-text">
           <h2>Works with Claude. Works with Cursor.<br />Works with anything MCP.</h2>
           <p>Drop this in your <code>claude_desktop_config.json</code>. Done. Your agent can post to six platforms without writing a single OAuth flow.</p>
-          <a href="#pricing" class="btn btn-primary">Get your API key →</a>
+          <a href="#waitlist" class="btn btn-primary">Join the Waitlist →</a>
         </div>
         <div class="quickstart-code">
           <div class="code-header">
@@ -174,7 +174,7 @@
             <li>✓ REST API + MCP server</li>
             <li>✓ Perfect for testing &amp; prototyping</li>
           </ul>
-          <a href="#" class="btn btn-outline btn-full" id="cta-free">Get Started Free</a>
+          <a href="#waitlist" class="btn btn-outline btn-full" id="cta-free">Join Waitlist</a>
         </div>
 
         <!-- PRO -->
@@ -191,7 +191,7 @@
             <li>✓ Webhooks</li>
             <li>✓ Priority support</li>
           </ul>
-          <a href="#" class="btn btn-primary btn-full" id="cta-pro">Start Pro →</a>
+          <a href="#waitlist" class="btn btn-primary btn-full" id="cta-pro">Join Waitlist →</a>
         </div>
 
         <!-- TEAM -->
@@ -211,19 +211,39 @@
             <li>✓ Webhooks + analytics</li>
             <li>✓ Dedicated support</li>
           </ul>
-          <a href="#" class="btn btn-outline btn-full" id="cta-team">Start Team →</a>
+          <a href="#waitlist" class="btn btn-outline btn-full" id="cta-team">Join Waitlist →</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- WHY AGENT-NATIVE MATTERS -->
-  <section class="social-proof">
+  <!-- WAITLIST -->
+  <!-- TODO: Replace formspree.io/f/REPLACE_WITH_YOUR_FORMSPREE_ID with your actual Formspree endpoint -->
+  <!-- Create a free form at https://formspree.io and paste the endpoint URL below -->
+  <section class="waitlist" id="waitlist">
     <div class="container">
-      <blockquote class="testimonial">
-        <p>"When an API returns <code>400 Bad Request</code>, a human can troubleshoot. An agent just fails silently. We built <code>agentHint</code> so your agent knows exactly what went wrong and how to fix it — without you writing another prompt."</p>
-        <cite>— Outpost Engineering</cite>
-      </blockquote>
+      <div class="waitlist-inner">
+        <h2 class="waitlist-title">Get early access.</h2>
+        <p class="waitlist-sub">We're in closed early access. Drop your email and we'll reach out when your spot is ready.</p>
+        <form
+          class="waitlist-form"
+          action="https://formspree.io/f/REPLACE_WITH_YOUR_FORMSPREE_ID"
+          method="POST"
+        >
+          <div class="waitlist-fields">
+            <input
+              type="email"
+              name="email"
+              class="waitlist-input"
+              placeholder="you@example.com"
+              required
+              autocomplete="email"
+            />
+            <button type="submit" class="btn btn-primary waitlist-btn">Join Waitlist</button>
+          </div>
+          <p class="waitlist-note">No spam. No credit card. We'll email you when you're in.</p>
+        </form>
+      </div>
     </div>
   </section>
 
