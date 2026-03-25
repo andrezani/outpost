@@ -4,6 +4,7 @@
   "description": "Social media API and MCP server for AI agents. Publish to X, Instagram, LinkedIn, Reddit, Bluesky, and Threads from a single endpoint.",
   "author": "Hibernyte",
   "private": true,
+  "mcpName": "io.github.andrezani/outpost",
   "license": "MIT",
   "scripts": {
     "build": "nest build",
