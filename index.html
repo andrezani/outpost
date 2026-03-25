@@ -44,8 +44,8 @@
         <a href="#quickstart" class="btn btn-ghost btn-lg">View Docs →</a>
       </div>
       <p class="hero-problem">
-        Every major social API was designed for humans clicking buttons.
-        Outpost was designed for agents calling endpoints.
+        Every social API was built for humans clicking buttons.<br />
+        Outpost was built for agents calling endpoints. <strong>Your agent can read our errors. Not just log them.</strong>
       </p>
     </div>
   </section>
@@ -65,10 +65,10 @@
     </div>
   </section>
 
-  <!-- THREE FEATURES -->
+  <!-- FOUR FEATURES -->
   <section class="features" id="features">
     <div class="container">
-      <div class="features-grid">
+      <div class="features-grid features-grid--four">
         <div class="feature-card">
           <div class="feature-icon">🔌</div>
           <h3>MCP-Native</h3>
@@ -78,6 +78,11 @@
           <div class="feature-icon">⚡</div>
           <h3>Unified Endpoint</h3>
           <p>One POST to <code>/api/v1/publish</code>. Platform routing, format normalization, error handling — all handled.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <h3>LLM-Friendly Errors</h3>
+          <p>Every error includes an <code>agentHint</code> field your agent can act on. Not just "400 Bad Request" — but <em>"Retry after 03:15 UTC. Rate limit resets every 15 minutes."</em></p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🏢</div>
@@ -153,7 +158,7 @@
   <section class="pricing" id="pricing">
     <div class="container">
       <h2 class="section-title">Simple pricing. No surprises.</h2>
-      <p class="section-sub">Start free. Upgrade when you need more volume or platforms.</p>
+      <p class="section-sub">100 free posts/month. No credit card. Upgrade when you need volume. <em>(Competitors give you 20.)</em></p>
 
       <div class="pricing-grid">
         <!-- FREE -->
@@ -212,12 +217,12 @@
     </div>
   </section>
 
-  <!-- SOCIAL PROOF (placeholder) -->
+  <!-- WHY AGENT-NATIVE MATTERS -->
   <section class="social-proof">
     <div class="container">
       <blockquote class="testimonial">
-        <p>"Finally an API that doesn't fight me when my agent needs to post."</p>
-        <cite>— Early access user</cite>
+        <p>"When an API returns <code>400 Bad Request</code>, a human can troubleshoot. An agent just fails silently. We built <code>agentHint</code> so your agent knows exactly what went wrong and how to fix it — without you writing another prompt."</p>
+        <cite>— Outpost Engineering</cite>
       </blockquote>
     </div>
   </section>
