@@ -16,8 +16,8 @@ const STRIPE_LINKS = {
   teamFounding: null, // TODO: 'https://buy.stripe.com/XXX' — Team Founding $49/mo
 };
 
-// API base URL — set when domain is registered
-const API_BASE = null; // TODO: 'https://api.outpost.dev'
+// API base URL — Railway staging (live). Swap for https://api.outpost.dev when domain is verified.
+const API_BASE = 'https://outpost-production-b1b8.up.railway.app';
 
 // Founding seats total
 const FOUNDING_SEATS_TOTAL = 50;
