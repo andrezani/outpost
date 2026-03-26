@@ -42,4 +42,4 @@ EXPOSE 3000
 
 # Run migrations then start (migrations are idempotent)
 # Use local prisma binary (not npx) — reliable in air-gapped/offline prod envs
-CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy && node dist/src/main"]
