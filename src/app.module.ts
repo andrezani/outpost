@@ -46,6 +46,7 @@ export class AppModule implements NestModule {
       .exclude(
         { path: 'organizations', method: RequestMethod.POST },
         { path: 'auth/users', method: RequestMethod.POST },
+        { path: 'auth/register', method: RequestMethod.POST },
         { path: 'health', method: RequestMethod.GET },
         // Stripe webhooks are authenticated via signature — not API key
         { path: 'webhooks/stripe', method: RequestMethod.POST },
