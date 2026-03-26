@@ -32,7 +32,8 @@ COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY prisma ./prisma
 
 # Non-root user for security
-RUN addgroup -S socialagent && adduser -S socialagent -G socialagent
+RUN addgroup -S socialagent && adduser -S socialagent -G socialagent \
+    && chown -R socialagent:socialagent /app
 USER socialagent
 
 EXPOSE 3000
