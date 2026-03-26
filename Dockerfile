@@ -30,8 +30,7 @@ COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY prisma ./prisma
-# Prisma 7: copy TS source config — Prisma's binary loads .ts via jiti internally
-COPY prisma.config.ts ./prisma.config.ts
+# Prisma v5: URL comes from DATABASE_URL env var via schema.prisma datasource
 
 # Non-root user for security
 RUN addgroup -S socialagent && adduser -S socialagent -G socialagent \
