@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import { PrismaService } from '../../common/prisma.service';
+import { EmailService } from '../../common/email.service';
 import { User, Organization } from '@prisma/client';
 import { TIER_LIMITS } from '../../common/tier-limits';
 
@@ -30,7 +31,10 @@ export interface RegisterResult {
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
+  ) {}
 
   private generateApiKey(): string {
     return `op_live_${randomBytes(32).toString('hex')}`;
@@ -108,6 +112,8 @@ export class AuthService {
 
       return newOrg;
     });
+
+    void this.emailService.sendApiKeyWelcome(email, org.apiKey, org.id);
 
     return {
       apiKey: org.apiKey,

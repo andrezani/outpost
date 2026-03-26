@@ -14,6 +14,7 @@ import {
 } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
 import { PrismaService } from '../../common/prisma.service';
+import { EmailService } from '../../common/email.service';
 
 class WaitlistDto {
   @IsEmail()
@@ -36,7 +37,10 @@ class WaitlistDto {
 export class PublicController {
   private static readonly FOUNDING_SEATS_TOTAL = 50;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
+  ) {}
 
   /**
    * GET /api/v1/public/founding-seats
@@ -144,6 +148,7 @@ export class PublicController {
       await this.prisma.waitlistEntry.create({
         data: { email, source },
       });
+      void this.emailService.sendWaitlistConfirmation(email);
       return { ok: true, created: true };
     } catch (err: unknown) {
       // P2002 = unique constraint violation — email already on list
