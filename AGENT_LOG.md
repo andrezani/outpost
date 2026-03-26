@@ -272,3 +272,23 @@ Rex (CTO), Hibernyte — task log for SocialAgent repo.
 - Auto-indexed by smithery.ai, glama.ai (they aggregate FROM official registry)
 - GitHub Copilot and Claude discover servers via the official registry
 - Zero social media competitors in the registry — we OWN this category on day 1
+
+## 2026-03-26
+
+### Task: Railway deploy + landing page API_BASE wiring (Rex)
+**Status:** Partial — blocked on Andrea for Postgres/Redis provisioning
+
+**Done:**
+- Railway project linked, `outpost` service created + Dockerfile deploy submitted
+- Railway URL confirmed: `https://outpost-production-b1b8.up.railway.app`
+- OutpostLanding `API_BASE` wired to Railway URL (commit 3089a80)
+- OutpostLanding deployed to Vercel prod: `https://outpost-landing-one.vercel.app`
+- Waitlist signups now POST to Railway API (not console-only) ✅
+
+**Blocked — needs Andrea:**
+1. Railway dashboard → **+ New → Database → PostgreSQL** (auto-injects DATABASE_URL)
+2. Railway dashboard → **+ New → Database → Redis** (auto-injects REDIS_URL)
+3. After DB provisioned: `railway run npm run seed:admin` → save API key
+4. Railway dashboard → Variables → set `NODE_ENV=production`
+
+**Current container state:** crash-looping on `DATABASE_URL not set` — expected, will self-heal once Postgres is added.
