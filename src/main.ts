@@ -12,6 +12,7 @@ async function bootstrap(): Promise<void> {
   // Stripe webhook controller can verify the signature.
   const app = await NestFactory.create(AppModule, {
     rawBody: true,
+    bodyParser: true,
   });
 
   // Attach rawBody buffer to req so StripeWebhookController can access it.
