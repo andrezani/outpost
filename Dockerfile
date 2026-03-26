@@ -17,6 +17,9 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
+# OpenSSL required by Prisma schema engine (migrate deploy)
+RUN apk add --no-cache openssl
+
 # Install only production deps
 COPY package*.json ./
 RUN npm ci --omit=dev --ignore-scripts
