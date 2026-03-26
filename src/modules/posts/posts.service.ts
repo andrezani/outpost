@@ -93,6 +93,37 @@ export class PostsService {
     });
   }
 
+  /**
+   * Get a compact status summary for the MCP get_post_status tool.
+   * Returns the post status + per-platform publish results.
+   */
+  async getStatus(id: string): Promise<{
+    id: string;
+    status: PostStatus;
+    publishedAt: Date | null;
+    platforms: Array<{
+      integrationId: string;
+      status: string;
+      externalId: string | null;
+      url: string | null;
+      error: string | null;
+    }>;
+  }> {
+    const post = await this.findById(id);
+    return {
+      id: post.id,
+      status: post.status,
+      publishedAt: post.publishedAt,
+      platforms: post.postIntegrations.map((pi) => ({
+        integrationId: pi.integrationId,
+        status: pi.status,
+        externalId: pi.externalId,
+        url: pi.url,
+        error: pi.error,
+      })),
+    };
+  }
+
   async markFailed(id: string, error?: string): Promise<Post> {
     return this.prisma.post.update({
       where: { id },

@@ -2,9 +2,14 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
 import { Integration, SocialPlatform } from '@prisma/client';
+import { OutpostErrorCode } from '../../common/errors';
+import type { OrgTier as TierKey } from '../../common/tier-limits';
+import { getPlatformQuota } from '../../common/tier-limits';
 
 export interface CreateIntegrationDto {
   organizationId: string;
@@ -12,12 +17,18 @@ export interface CreateIntegrationDto {
   refreshToken?: string;
   internalId: string;
   identifier: SocialPlatform;
+  handle?: string;
+  displayName?: string;
+  avatarUrl?: string;
 }
 
 export interface UpdateIntegrationDto {
   token?: string;
   refreshToken?: string;
   disabled?: boolean;
+  handle?: string;
+  displayName?: string;
+  avatarUrl?: string;
 }
 
 @Injectable()
@@ -36,9 +47,51 @@ export class IntegrationsService {
     });
 
     if (existing) {
-      throw new ConflictException(
-        `Integration for ${dto.identifier} already exists in this organization`,
-      );
+      if (!existing.disabled) {
+        throw new ConflictException(
+          `Integration for ${dto.identifier} already exists in this organization`,
+        );
+      }
+      // Re-enable and update token for a previously disabled integration
+      return this.prisma.integration.update({
+        where: { id: existing.id },
+        data: {
+          token: dto.token,
+          refreshToken: dto.refreshToken,
+          disabled: false,
+          handle: dto.handle,
+          displayName: dto.displayName,
+          avatarUrl: dto.avatarUrl,
+        },
+      });
+    }
+
+    // Enforce per-org platform quota (derived from tier)
+    const org = await this.prisma.organization.findUnique({
+      where: { id: dto.organizationId },
+    });
+    if (!org) throw new NotFoundException('Organization not found');
+
+    if (org.platformQuota !== null) {
+      const activeCount = await this.prisma.integration.count({
+        where: { organizationId: dto.organizationId, disabled: false },
+      });
+      if (activeCount >= org.platformQuota) {
+        const tierQuota = getPlatformQuota(org.tier as TierKey) ?? activeCount;
+        throw new HttpException(
+          {
+            success: false,
+            error: {
+              code: OutpostErrorCode.PLATFORM_QUOTA_EXCEEDED,
+              message: `Your ${org.tier} plan allows up to ${tierQuota} connected platforms. You have ${activeCount}.`,
+              agentHint:
+                'Disconnect an existing platform integration or upgrade your plan. ' +
+                'Use DELETE /api/v1/integrations/:id to remove one.',
+            },
+          },
+          HttpStatus.PAYMENT_REQUIRED,
+        );
+      }
     }
 
     return this.prisma.integration.create({ data: dto });

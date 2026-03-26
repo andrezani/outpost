@@ -1,10 +1,11 @@
 {
-  "name": "social-agent",
+  "name": "outpost",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Social media API and MCP server for AI agents. Publish to X, Instagram, LinkedIn, Reddit, Bluesky, and Threads from a single endpoint.",
+  "author": "Hibernyte",
   "private": true,
-  "license": "UNLICENSED",
+  "mcpName": "io.github.andrezani/outpost",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -17,18 +18,26 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "prepare": "husky",
+    "seed:admin": "ts-node -r tsconfig-paths/register scripts/bootstrap.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.2.6",
     "@prisma/client": "^7.5.0",
-    "inngest": "^4.0.5",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "ioredis": "^5.10.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "resend": "^6.9.4",
+    "rxjs": "^7.8.1",
+    "dotenv": "^16.0.0",
+    "stripe": "^20.4.1",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -46,6 +55,7 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
+    "husky": "^9.1.7",
     "jest": "^30.0.0",
     "prettier": "^3.4.2",
     "prisma": "^7.5.0",
@@ -55,7 +65,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.3",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
@@ -73,6 +83,15 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
-  }
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>",
+      "<rootDir>/../test"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andrezani/outpost.git"
+  },
+  "homepage": "https://outpost.dev"
 }

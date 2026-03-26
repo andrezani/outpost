@@ -1,0 +1,37 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.andrezani/outpost",
+  "title": "Outpost",
+  "description": "Social media API and MCP server for AI agents. Publish to X (Twitter), LinkedIn, Instagram, Reddit, Bluesky, and Threads from a single endpoint. Every error includes agentHint — a plain English instruction for your LLM on exactly what to do next.",
+  "websiteUrl": "https://outpost.dev",
+  "repository": {
+    "url": "https://github.com/andrezani/outpost",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@outpost/mcp-server",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "OUTPOST_API_KEY",
+          "description": "Your Outpost API key (starts with sa_). Get one at outpost.dev.",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "OUTPOST_BASE_URL",
+          "description": "Base URL of your Outpost instance. Defaults to https://api.outpost.dev — override only if self-hosting.",
+          "isRequired": false,
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}

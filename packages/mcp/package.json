@@ -1,0 +1,45 @@
+{
+  "name": "@outpost/mcp-server",
+  "version": "0.1.0",
+  "mcpName": "io.github.andrezani/outpost",
+  "description": "MCP server for Outpost — publish social media posts to X, LinkedIn, Instagram, Reddit, Bluesky, and Threads from any AI agent.",
+  "author": "Hibernyte",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andrezani/outpost.git"
+  },
+  "homepage": "https://outpost.dev",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "social-media",
+    "ai-agents",
+    "twitter",
+    "linkedin",
+    "instagram",
+    "reddit",
+    "bluesky",
+    "threads",
+    "publish",
+    "automation"
+  ],
+  "main": "dist/index.js",
+  "bin": {
+    "outpost-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "files": [
+    "dist/",
+    "README.md"
+  ]
+}

@@ -19,12 +19,24 @@ enum UserRole {
   MEMBER
 }
 
+/// Billing tier for an organization.
+/// Determines post quota, platform count, and webhook access.
+enum OrgTier {
+  free
+  pro
+  team
+  /// Founding rate — $49/mo locked forever for first 50 customers.
+  team_founding
+}
+
 enum SocialPlatform {
   x
   instagram
   reddit
   linkedin
   tiktok
+  bluesky
+  threads
 }
 
 enum PostStatus {
@@ -40,6 +52,11 @@ enum PostIntegrationStatus {
   FAILED
 }
 
+enum WebhookEvent {
+  post_published
+  post_failed
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Models
 // ─────────────────────────────────────────────────────────────────────────────
@@ -50,12 +67,25 @@ model Organization {
   apiKey      String   @unique @default(cuid())
   paymentId   String?
   isTrialing  Boolean  @default(true)
+  /// Billing tier (drives quota enforcement via TIER_LIMITS constants)
+  tier        OrgTier  @default(free)
+  /// Monthly post quota (null = unlimited). Derived from tier at creation/upgrade.
+  /// Cached here so a single quota check doesn't need to join on tier logic.
+  postQuota   Int?     @default(100)
+  /// Max platforms the org can connect (null = unlimited). Derived from tier.
+  platformQuota Int?   @default(3)
+  /// Posts used this calendar month
+  postsUsed   Int      @default(0)
+  /// When the quota window last reset (start of month)
+  quotaResetAt DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   users        UserOrganization[]
   integrations Integration[]
   posts        Post[]
+  oauthStates  OAuthState[]
+  webhooks     Webhook[]
 }
 
 model User {
@@ -91,6 +121,12 @@ model Integration {
   internalId     String
   identifier     SocialPlatform
   disabled       Boolean        @default(false)
+  /// Human-readable handle / username on the platform
+  handle         String?
+  /// Display name on the platform
+  displayName    String?
+  /// Platform profile picture URL
+  avatarUrl      String?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
@@ -105,6 +141,8 @@ model Post {
   id             String     @id @default(cuid())
   organizationId String
   content        String
+  /// JSON-encoded options (subreddit, title, imageUrl, etc.)
+  options        Json?
   scheduledAt    DateTime?
   publishedAt    DateTime?
   status         PostStatus @default(DRAFT)
@@ -125,6 +163,8 @@ model PostIntegration {
   status        PostIntegrationStatus @default(PENDING)
   error         String?
   externalId    String?
+  /// Public URL to the published post
+  url           String?
   createdAt     DateTime              @default(now())
   updatedAt     DateTime              @updatedAt
 
@@ -133,4 +173,57 @@ model PostIntegration {
 
   @@unique([postId, integrationId])
   @@index([integrationId])
+}
+
+/// Ephemeral OAuth state for PKCE + CSRF protection.
+/// Created at auth URL generation, deleted after callback.
+model OAuthState {
+  id             String         @id @default(cuid())
+  organizationId String
+  platform       SocialPlatform
+  /// CSRF state token (random, opaque, stored as the OAuth `state` param)
+  state          String         @unique
+  /// PKCE code verifier (for platforms using PKCE — X, Reddit)
+  codeVerifier   String?
+  /// Where to redirect the user after OAuth success
+  redirectUri    String
+  expiresAt      DateTime
+  createdAt      DateTime       @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([state])
+  @@index([expiresAt])
+}
+
+/// Waitlist signup from the landing page.
+/// No auth — captured before self-service onboarding exists.
+model WaitlistEntry {
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  firstName          String?  // Optional — derived from email prefix if not supplied
+  whatAreYouBuilding String?  // Free text — feeds Email 4 "what are you building?" content
+  source             String   @default("landing") // e.g. "landing", "mcp-registry", "twitter"
+  createdAt          DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+/// Webhook endpoints registered by an org to receive post events.
+model Webhook {
+  id             String       @id @default(cuid())
+  organizationId String
+  /// HTTPS URL to POST events to
+  url            String
+  /// Which events to fire for (empty = all)
+  events         WebhookEvent[]
+  /// Secret for HMAC-SHA256 signature header (X-SocialAgent-Signature)
+  secret         String
+  enabled        Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
 }
