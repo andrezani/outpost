@@ -14,13 +14,14 @@ import {
   ApiBearerAuth,
   ApiSecurity,
 } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 import { AuthService } from './auth.service';
 import type { CreateUserDto } from './auth.service';
 import type { AuthenticatedRequest } from '../../middleware/api-key.middleware';
 
 class RegisterDto {
-  @IsEmail()
+  @IsString()
+  @Matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, { message: 'email must be a valid email address' })
   email!: string;
 
   @IsOptional()
