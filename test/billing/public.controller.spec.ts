@@ -9,6 +9,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
 import { PublicController } from '../../src/modules/billing/public.controller';
 import { PrismaService } from '../../src/common/prisma.service';
+import { EmailService } from '../../src/common/email.service';
+
+// EmailService is injected into PublicController (Resend transactional emails).
+// Mock it so tests don't require RESEND_API_KEY or ConfigService.
+const mockEmailService = {
+  sendWaitlistConfirmation: jest.fn().mockResolvedValue(undefined),
+  sendApiKeyWelcome: jest.fn().mockResolvedValue(undefined),
+};
 
 const mockPrismaService = {
   organization: {
@@ -27,6 +35,7 @@ describe('PublicController', () => {
       controllers: [PublicController],
       providers: [
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: EmailService, useValue: mockEmailService },
       ],
     }).compile();
 

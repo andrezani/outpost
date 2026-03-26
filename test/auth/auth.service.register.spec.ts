@@ -7,7 +7,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from '../../src/modules/auth/auth.service';
 import { PrismaService } from '../../src/common/prisma.service';
+import { EmailService } from '../../src/common/email.service';
 import { TIER_LIMITS } from '../../src/common/tier-limits';
+
+// EmailService is injected into AuthService (Resend transactional emails).
+// Mock it so tests don't require RESEND_API_KEY or ConfigService.
+const mockEmailService = {
+  sendWaitlistConfirmation: jest.fn().mockResolvedValue(undefined),
+  sendApiKeyWelcome: jest.fn().mockResolvedValue(undefined),
+};
 
 // Minimal mock org returned by Prisma
 const mockOrg = {
@@ -64,6 +72,7 @@ describe('AuthService.register()', () => {
       providers: [
         AuthService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: EmailService, useValue: mockEmailService },
       ],
     }).compile();
 
