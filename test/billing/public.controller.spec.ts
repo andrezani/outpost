@@ -1,16 +1,21 @@
 /**
  * PublicController tests
  *
- * Verifies the unauthenticated /api/v1/public/founding-seats endpoint
- * returns correct counts and that it does NOT require an API key.
+ * Verifies the unauthenticated endpoints:
+ *   GET  /api/v1/public/founding-seats  — founding seat counter
+ *   POST /api/v1/public/waitlist        — waitlist signup
  */
 import { Test, TestingModule } from '@nestjs/testing';
+import { BadRequestException } from '@nestjs/common';
 import { PublicController } from '../../src/modules/billing/public.controller';
 import { PrismaService } from '../../src/common/prisma.service';
 
 const mockPrismaService = {
   organization: {
     count: jest.fn(),
+  },
+  waitlistEntry: {
+    create: jest.fn(),
   },
 };
 
@@ -28,6 +33,8 @@ describe('PublicController', () => {
     controller = module.get<PublicController>(PublicController);
     jest.clearAllMocks();
   });
+
+  // ─── GET /public/founding-seats ────────────────────────────────────────────
 
   describe('GET /public/founding-seats', () => {
     it('returns correct counts when no founding seats taken', async () => {
@@ -87,6 +94,64 @@ describe('PublicController', () => {
       expect(mockPrismaService.organization.count).toHaveBeenCalledWith({
         where: { tier: 'team_founding' },
       });
+    });
+  });
+
+  // ─── POST /public/waitlist ─────────────────────────────────────────────────
+
+  describe('POST /public/waitlist', () => {
+    it('creates a new waitlist entry and returns created:true', async () => {
+      mockPrismaService.waitlistEntry.create.mockResolvedValue({ id: 'wl_1', email: 'dev@ai.co', source: 'landing' });
+
+      const result = await controller.joinWaitlist({ email: 'dev@ai.co' });
+
+      expect(result).toEqual({ ok: true, created: true });
+      expect(mockPrismaService.waitlistEntry.create).toHaveBeenCalledWith({
+        data: { email: 'dev@ai.co', source: 'landing' },
+      });
+    });
+
+    it('normalizes email to lowercase', async () => {
+      mockPrismaService.waitlistEntry.create.mockResolvedValue({});
+
+      await controller.joinWaitlist({ email: 'Dev@AI.Co' });
+
+      expect(mockPrismaService.waitlistEntry.create).toHaveBeenCalledWith({
+        data: { email: 'dev@ai.co', source: 'landing' },
+      });
+    });
+
+    it('accepts a custom source field', async () => {
+      mockPrismaService.waitlistEntry.create.mockResolvedValue({});
+
+      await controller.joinWaitlist({ email: 'agent@company.ai', source: 'mcp-registry' });
+
+      expect(mockPrismaService.waitlistEntry.create).toHaveBeenCalledWith({
+        data: { email: 'agent@company.ai', source: 'mcp-registry' },
+      });
+    });
+
+    it('returns created:false (not 409) when email already on list', async () => {
+      // P2002 = Prisma unique constraint violation
+      const uniqueError = Object.assign(new Error('Unique constraint'), { code: 'P2002' });
+      mockPrismaService.waitlistEntry.create.mockRejectedValue(uniqueError);
+
+      const result = await controller.joinWaitlist({ email: 'existing@user.ai' });
+
+      expect(result).toEqual({ ok: true, created: false });
+    });
+
+    it('re-throws non-unique Prisma errors', async () => {
+      const dbError = Object.assign(new Error('DB connection lost'), { code: 'P1001' });
+      mockPrismaService.waitlistEntry.create.mockRejectedValue(dbError);
+
+      await expect(controller.joinWaitlist({ email: 'user@test.ai' })).rejects.toThrow('DB connection lost');
+    });
+
+    it('throws BadRequestException when email is empty string', async () => {
+      await expect(
+        controller.joinWaitlist({ email: '   ' }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

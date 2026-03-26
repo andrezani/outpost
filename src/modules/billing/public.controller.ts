@@ -1,12 +1,35 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+} from '@nestjs/swagger';
+import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
 import { PrismaService } from '../../common/prisma.service';
+
+class WaitlistDto {
+  @IsEmail()
+  email!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  source?: string;
+}
 
 /**
  * PublicController — unauthenticated public endpoints.
  *
  * These routes are intentionally unguarded (no API key required).
- * Do NOT add sensitive data here — stats only.
+ * Do NOT add sensitive data here — stats + waitlist only.
  */
 @ApiTags('Public')
 @Controller('public')
@@ -62,5 +85,78 @@ export class PublicController {
       remaining,
       active: remaining > 0,
     };
+  }
+
+  /**
+   * POST /api/v1/public/waitlist
+   *
+   * Captures a waitlist signup email from the landing page.
+   * Idempotent: submitting the same email returns 200 (not 409).
+   *
+   * No authentication required.
+   */
+  @Post('waitlist')
+  @ApiOperation({
+    summary: 'Join the waitlist',
+    description:
+      'Captures an email address for the Outpost waitlist. ' +
+      'Idempotent — submitting the same email twice returns 200 both times. ' +
+      'No authentication required.',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['email'],
+      properties: {
+        email: { type: 'string', format: 'email', example: 'dev@company.ai' },
+        source: {
+          type: 'string',
+          example: 'landing',
+          description: 'Where the signup came from (default: "landing")',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Email captured (already existed or newly created).',
+    schema: {
+      type: 'object',
+      properties: {
+        ok: { type: 'boolean', example: true },
+        created: { type: 'boolean', example: true, description: 'false if email already on list' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid email address.',
+  })
+  async joinWaitlist(
+    @Body() body: WaitlistDto,
+  ): Promise<{ ok: boolean; created: boolean }> {
+    const email = (body.email ?? '').trim().toLowerCase();
+    if (!email) throw new BadRequestException('email is required');
+
+    const source = body.source ?? 'landing';
+
+    try {
+      await this.prisma.waitlistEntry.create({
+        data: { email, source },
+      });
+      return { ok: true, created: true };
+    } catch (err: unknown) {
+      // P2002 = unique constraint violation — email already on list
+      const isPrismaUnique =
+        typeof err === 'object' &&
+        err !== null &&
+        'code' in err &&
+        (err as { code: string }).code === 'P2002';
+
+      if (isPrismaUnique) {
+        return { ok: true, created: false };
+      }
+      throw err;
+    }
   }
 }

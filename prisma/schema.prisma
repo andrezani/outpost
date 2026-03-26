@@ -196,6 +196,17 @@ model OAuthState {
   @@index([expiresAt])
 }
 
+/// Waitlist signup from the landing page.
+/// No auth — captured before self-service onboarding exists.
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   @default("landing") // e.g. "landing", "mcp-registry", "twitter"
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 /// Webhook endpoints registered by an org to receive post events.
 model Webhook {
   id             String       @id @default(cuid())
