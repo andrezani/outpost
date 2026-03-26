@@ -19,10 +19,12 @@ export class EmailService {
     this.from = this.config.get<string>('EMAIL_FROM') ?? 'Outpost <hello@outpost.dev>';
   }
 
-  async sendWaitlistConfirmation(email: string): Promise<void> {
+  async sendWaitlistConfirmation(email: string, firstName = 'there'): Promise<void> {
     if (!this.resend) return;
 
-    const text = `Hey,
+    const greeting = firstName && firstName !== 'there' ? `Hey ${firstName},` : 'Hey,';
+
+    const text = `${greeting}
 
 You're on the Outpost waitlist. We're building the API-first social publishing layer for AI agents — no dashboards, no OAuth dance, just POST your content and let Outpost handle the rest.
 
@@ -37,7 +39,7 @@ Anything you're building? Hit reply — I read everything.
 outpost.dev`;
 
     const html = `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;color:#111;line-height:1.6">
-  <p>Hey,</p>
+  <p>${greeting}</p>
   <p>You're on the Outpost waitlist. We're building the API-first social publishing layer for AI agents — no dashboards, no OAuth dance, just POST your content and let Outpost handle the rest.</p>
   <p>When your spot opens up, you'll get an API key and be posting in under 5 minutes.</p>
   <p><strong>Founding rate is live:</strong> 50 seats at $49/mo for Team (normally $99). First come, first served.</p>

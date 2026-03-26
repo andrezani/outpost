@@ -3,7 +3,7 @@
  *
  * Verifies the unauthenticated endpoints:
  *   GET  /api/v1/public/founding-seats  — founding seat counter
- *   POST /api/v1/public/waitlist        — waitlist signup
+ *   POST /api/v1/public/waitlist        — waitlist signup (with firstName + whatAreYouBuilding)
  */
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
@@ -109,14 +109,50 @@ describe('PublicController', () => {
   // ─── POST /public/waitlist ─────────────────────────────────────────────────
 
   describe('POST /public/waitlist', () => {
-    it('creates a new waitlist entry and returns created:true', async () => {
-      mockPrismaService.waitlistEntry.create.mockResolvedValue({ id: 'wl_1', email: 'dev@ai.co', source: 'landing' });
+    it('creates a new waitlist entry with derived firstName and returns created:true', async () => {
+      mockPrismaService.waitlistEntry.create.mockResolvedValue({ id: 'wl_1', email: 'dev@ai.co' });
 
       const result = await controller.joinWaitlist({ email: 'dev@ai.co' });
 
       expect(result).toEqual({ ok: true, created: true });
+      // firstName derived from email prefix "dev" → "Dev"
       expect(mockPrismaService.waitlistEntry.create).toHaveBeenCalledWith({
-        data: { email: 'dev@ai.co', source: 'landing' },
+        data: {
+          email: 'dev@ai.co',
+          source: 'landing',
+          firstName: 'Dev',
+          whatAreYouBuilding: null,
+        },
+      });
+    });
+
+    it('stores explicit firstName when provided', async () => {
+      mockPrismaService.waitlistEntry.create.mockResolvedValue({});
+
+      await controller.joinWaitlist({ email: 'sarah@company.ai', firstName: 'Sarah' });
+
+      expect(mockPrismaService.waitlistEntry.create).toHaveBeenCalledWith({
+        data: {
+          email: 'sarah@company.ai',
+          source: 'landing',
+          firstName: 'Sarah',
+          whatAreYouBuilding: null,
+        },
+      });
+    });
+
+    it('stores whatAreYouBuilding when provided', async () => {
+      mockPrismaService.waitlistEntry.create.mockResolvedValue({});
+
+      await controller.joinWaitlist({
+        email: 'builder@ai.co',
+        whatAreYouBuilding: 'An AI agent that posts my weekly learnings to LinkedIn',
+      });
+
+      expect(mockPrismaService.waitlistEntry.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          whatAreYouBuilding: 'An AI agent that posts my weekly learnings to LinkedIn',
+        }),
       });
     });
 
@@ -126,7 +162,7 @@ describe('PublicController', () => {
       await controller.joinWaitlist({ email: 'Dev@AI.Co' });
 
       expect(mockPrismaService.waitlistEntry.create).toHaveBeenCalledWith({
-        data: { email: 'dev@ai.co', source: 'landing' },
+        data: expect.objectContaining({ email: 'dev@ai.co' }),
       });
     });
 
@@ -136,8 +172,19 @@ describe('PublicController', () => {
       await controller.joinWaitlist({ email: 'agent@company.ai', source: 'mcp-registry' });
 
       expect(mockPrismaService.waitlistEntry.create).toHaveBeenCalledWith({
-        data: { email: 'agent@company.ai', source: 'mcp-registry' },
+        data: expect.objectContaining({ source: 'mcp-registry' }),
       });
+    });
+
+    it('fires sendWaitlistConfirmation with email + firstName', async () => {
+      mockPrismaService.waitlistEntry.create.mockResolvedValue({});
+
+      await controller.joinWaitlist({ email: 'sarah@acme.ai', firstName: 'Sarah' });
+
+      // Give void promise a tick to fire
+      await new Promise((r) => setTimeout(r, 0));
+
+      expect(mockEmailService.sendWaitlistConfirmation).toHaveBeenCalledWith('sarah@acme.ai', 'Sarah');
     });
 
     it('returns created:false (not 409) when email already on list', async () => {

@@ -23,6 +23,16 @@ class WaitlistDto {
   @IsOptional()
   @IsString()
   @MaxLength(64)
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(280)
+  whatAreYouBuilding?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
   source?: string;
 }
 
@@ -113,6 +123,16 @@ export class PublicController {
       required: ['email'],
       properties: {
         email: { type: 'string', format: 'email', example: 'dev@company.ai' },
+        firstName: {
+          type: 'string',
+          example: 'Sarah',
+          description: 'Optional first name — used to personalize confirmation email',
+        },
+        whatAreYouBuilding: {
+          type: 'string',
+          example: 'An AI agent that posts my weekly learnings to LinkedIn',
+          description: 'Optional — what the developer is building (max 280 chars)',
+        },
         source: {
           type: 'string',
           example: 'landing',
@@ -144,11 +164,20 @@ export class PublicController {
 
     const source = body.source ?? 'landing';
 
+    // Derive firstName from email prefix if not provided (e.g. "sarah@acme.com" → "Sarah")
+    const firstName =
+      body.firstName?.trim() ||
+      (email.split('@')[0].replace(/[^a-z]/gi, '') || 'there').replace(/^\w/, (c) =>
+        c.toUpperCase(),
+      );
+
+    const whatAreYouBuilding = body.whatAreYouBuilding?.trim() ?? null;
+
     try {
       await this.prisma.waitlistEntry.create({
-        data: { email, source },
+        data: { email, source, firstName, whatAreYouBuilding },
       });
-      void this.emailService.sendWaitlistConfirmation(email);
+      void this.emailService.sendWaitlistConfirmation(email, firstName);
       return { ok: true, created: true };
     } catch (err: unknown) {
       // P2002 = unique constraint violation — email already on list
