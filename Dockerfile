@@ -30,6 +30,8 @@ COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY prisma ./prisma
+# Prisma 7 config: copy compiled config to app root so `prisma migrate deploy` finds it
+COPY --from=builder /app/dist/prisma.config.js ./prisma.config.js
 
 # Non-root user for security
 RUN addgroup -S socialagent && adduser -S socialagent -G socialagent \
