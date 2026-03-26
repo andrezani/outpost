@@ -129,15 +129,12 @@ function initCodeCopy() {
 }
 
 // ─────────────────────────────────────────────
-// Waitlist form — safe submission handler
-// Handles both: real Formspree ID and placeholder (dev mode)
+// Waitlist form — submits to Outpost API
+// Falls back to local capture when API_BASE is null (pre-launch)
 // ─────────────────────────────────────────────
 function initWaitlistForm() {
   const form = document.querySelector('.waitlist-form');
   if (!form) return;
-
-  const actionUrl = form.getAttribute('action') || '';
-  const isPlaceholder = actionUrl.includes('REPLACE_WITH_YOUR_FORMSPREE_ID');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -154,25 +151,25 @@ function initWaitlistForm() {
       submitBtn.textContent = 'Joining…';
     }
 
-    if (isPlaceholder) {
-      // Formspree not configured yet — log locally and show success UI
-      console.info('[Outpost] Waitlist signup captured (Formspree not configured):', email);
+    if (!API_BASE) {
+      // API not live yet (domain not registered) — log locally and show success UI
+      console.info('[Outpost] Waitlist signup captured locally (API not configured):', email);
       showWaitlistSuccess(form, email);
       return;
     }
 
-    // Real Formspree endpoint — submit via fetch
+    // Submit to Outpost API — our own DB, no third-party limits
     try {
-      const res = await fetch(actionUrl, {
+      const res = await fetch(`${API_BASE}/api/v1/public/waitlist`, {
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, source: 'landing' }),
       });
 
       if (res.ok) {
         showWaitlistSuccess(form, email);
       } else {
-        throw new Error(`Formspree error: ${res.status}`);
+        throw new Error(`API error: ${res.status}`);
       }
     } catch (err) {
       console.error('[Outpost] Waitlist submission failed:', err);
