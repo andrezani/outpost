@@ -30,8 +30,8 @@ COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY prisma ./prisma
-# Prisma 7 config: copy compiled JS (Railway injects DATABASE_URL — no dotenv needed)
-COPY --from=builder /app/dist/prisma.config.js ./prisma.config.js
+# Prisma 7: copy TS source config — Prisma's binary loads .ts via jiti internally
+COPY prisma.config.ts ./prisma.config.ts
 
 # Non-root user for security
 RUN addgroup -S socialagent && adduser -S socialagent -G socialagent \
