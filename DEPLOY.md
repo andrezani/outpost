@@ -56,7 +56,7 @@ Go to your Railway project → **Variables** tab. Add these:
 |---|---|
 | `CORS_ORIGIN` | Default `*` is fine for staging |
 | `RESEND_API_KEY` | Skip — email is silently skipped if not set |
-| `EMAIL_FROM` | Skip with Resend |
+| `EMAIL_FROM` | ⚠️ **DO NOT set this to a custom domain (e.g. `hello@outpost.dev`) until that domain is verified in the Resend dashboard.** Unverified domain = bounced/spam emails. Default (`onboarding@resend.dev`) works immediately and is safe for staging + early launch. |
 | `SCHEDULER_INTERVAL_MS` | Default 60000ms (60s) — fine |
 | `STRIPE_SECRET_KEY` | Skip — billing returns 400 with clear message if not set |
 | `STRIPE_WEBHOOK_SECRET` | Skip for now |

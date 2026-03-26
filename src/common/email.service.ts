@@ -16,7 +16,9 @@ export class EmailService {
     } else {
       this.resend = new Resend(apiKey);
     }
-    this.from = this.config.get<string>('EMAIL_FROM') ?? 'Outpost <hello@outpost.dev>';
+    // Default to Resend's shared test sender until outpost.dev is verified in Resend dashboard.
+    // Set EMAIL_FROM=Outpost <hello@outpost.dev> in Railway env ONLY after domain verification.
+    this.from = this.config.get<string>('EMAIL_FROM') ?? 'Outpost <onboarding@resend.dev>';
   }
 
   async sendWaitlistConfirmation(email: string, firstName = 'there'): Promise<void> {
