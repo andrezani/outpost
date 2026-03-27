@@ -24,7 +24,7 @@
  *   }
  * }
  *
- * Via npx (recommended — connects to hosted api.outpost.dev):
+ * Via npx (recommended — connects to hosted production API):
  * {
  *   "mcpServers": {
  *     "outpost": {
@@ -52,7 +52,7 @@
 
 import * as readline from 'readline';
 
-const BASE_URL = process.env.OUTPOST_BASE_URL ?? 'https://api.outpost.dev';
+const BASE_URL = process.env.OUTPOST_BASE_URL ?? 'https://outpost-production-b1b8.up.railway.app';
 const API_KEY = process.env.OUTPOST_API_KEY;
 const API_PREFIX = `${BASE_URL}/api/v1`;
 

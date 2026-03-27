@@ -27,7 +27,7 @@
         },
         {
           "name": "OUTPOST_BASE_URL",
-          "description": "Base URL of your Outpost instance. Defaults to https://api.outpost.dev — override only if self-hosting.",
+          "description": "Base URL of your Outpost instance. Defaults to https://outpost-production-b1b8.up.railway.app — override only if self-hosting.",
           "isRequired": false,
           "isSecret": false
         }
