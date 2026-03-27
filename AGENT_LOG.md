@@ -2,6 +2,57 @@
 
 ---
 
+## 2026-03-27 (Admin API module)
+
+### Task: Admin API module — orgs, waitlist, stats endpoints
+
+**What was built:**
+- `src/modules/admin/admin.guard.ts` — `AdminGuard` (CanActivate): reads `X-Admin-Key` header, compares to `ADMIN_API_KEY` env var. Returns 503 if env var not set, 401 if key missing/wrong.
+- `src/modules/admin/admin.service.ts` — `AdminService`: listOrgs (paginated), getOrg (with last 5 posts + integrations), listWaitlist (paginated), getAllWaitlistEntries (for CSV), getStats (full aggregates via Promise.all)
+- `src/modules/admin/admin.controller.ts` — `AdminController` at `admin/*`, all protected by `AdminGuard`:
+  - `GET /api/v1/admin/orgs` — list orgs with pagination (page, limit default 20)
+  - `GET /api/v1/admin/orgs/:id` — org detail + recent 5 posts + integrations
+  - `PATCH /api/v1/admin/orgs/:id/tier` — update tier via `TierService.setTier()`
+  - `GET /api/v1/admin/waitlist` — paginated waitlist, newest first
+  - `GET /api/v1/admin/waitlist/export.csv` — streamed CSV export with proper escaping
+  - `GET /api/v1/admin/stats` — orgs by tier, waitlist counts (total/24h/7d), post stats, integrations by platform
+- `src/modules/admin/admin.module.ts` — imports CommonModule + BillingModule (for TierService)
+- `src/app.module.ts` — AdminModule registered, admin/* excluded from ApiKeyMiddleware
+- `.env.example` — `ADMIN_API_KEY=your_admin_key_here` with comment
+- `test/admin/admin.controller.spec.ts` — 9 tests: guard 401/503 cases, stats shape, waitlist pagination, tier patch delegates to TierService
+
+**TSC:** 0 errors ✅ | **Tests:** 9/9 pass ✅
+**Commit:** 14dd21b
+**Branch:** dev
+
+---
+
+## 2026-03-27 (Prisma v7 Docker fix + Railway crash-loop root cause)
+
+### Task: Dockerfile fix + DEPLOY.md Railway steps
+**Task ID:** 0cea4e73-264d-4cef-8753-a6bf20344e04
+
+**Investigation:**
+- Prisma "v7 issue" was already resolved by previous Rex session (commits 1ac32ae + b740761 — downgraded to v5, removed prisma.config.ts)
+- Current state: Prisma v5.22.0, schema.prisma has `url = env("DATABASE_URL")` correctly
+- Root cause of crash-loop: DATABASE_URL not injected yet (Andrea hasn't provisioned Postgres + Redis in Railway dashboard) — this is expected
+- Additional Dockerfile bug found: CMD was using `prisma db push` (dev tool, bypasses migration history) instead of `prisma migrate deploy` (production-correct, idempotent)
+- app.module.ts had uncommitted fix: path-to-regexp v8 wildcard `{*path}` → explicit route excludes (NestJS v11 compatibility)
+
+**Fixes:**
+- `Dockerfile` CMD: `prisma db push --skip-generate` → `prisma migrate deploy`
+- `src/app.module.ts`: wildcard public path excludes → explicit route list (was uncommitted, now committed)
+- `DEPLOY.md`: rewritten with step-by-step Railway dashboard guide (5-min Postgres + Redis provisioning + troubleshooting table)
+
+**TSC:** 0 errors ✅ | Pre-commit checks: passed ✅
+**Commit:** ba8b0c6
+**Branch:** dev
+
+**Container will self-heal when:** Andrea adds Postgres + Redis plugins in Railway dashboard.
+Railway auto-injects DATABASE_URL + REDIS_URL and triggers redeploy automatically.
+
+---
+
 ## 2026-03-25 (agentHint audit + glama.ai prep)
 
 ### Task: agentHint audit (all 6 providers) + glama.ai README submission prep
