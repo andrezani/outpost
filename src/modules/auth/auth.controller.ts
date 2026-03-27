@@ -97,7 +97,7 @@ export class AuthController {
             platforms: { type: 'number', example: 3 },
           },
         },
-        quickstart: { type: 'string', example: 'https://outpost.dev/docs/quickstart' },
+        quickstart: { type: 'string', example: 'https://outpost-landing-one.vercel.app/#quickstart' },
         created: {
           type: 'boolean',
           description: 'true = new org created; false = existing org returned (idempotent)',
