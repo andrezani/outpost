@@ -2,6 +2,28 @@
 
 ---
 
+## 2026-03-27 (MCP HTTP transport tests)
+
+### Task: Proactive — test coverage for untested MCP HTTP transport module
+**No task ID** — self-assigned (queue API was down, no pending CTO tasks)
+
+**What was built:**
+- `test/mcp/mcp.controller.spec.ts` — 20 tests for McpService + McpController
+- McpService tests (17): initialize protocol handshake, tools/list returns all 6 tools,
+  notifications/initialized + ping empty responses, unknown method → -32601,
+  list_accounts (unfiltered + platform filter), publish_post (text-only + reddit metadata
+  + instagram image media), HttpException passthrough (returns response, not thrown),
+  check_platform_capabilities, list_all_platform_capabilities, check_rate_limits,
+  get_post_status, unknown tool → -32603, non-HttpException error → -32603
+- McpController tests (3): single message handling, batch array handling,
+  orgId propagation from authenticated request
+
+**TSC:** 0 errors ✅ (pre-commit hook confirmed)
+**Tests:** 182/182 passing (162 existing + 20 new)
+**Commit:** eb9e474 (dev branch)
+
+---
+
 ## 2026-03-27 (npm publish attempt + OAuth diagnostic)
 
 ### Task: CRITICAL — publish @outpost/mcp-server + fix quickstart URL + OAuth diagnostic
