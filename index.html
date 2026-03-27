@@ -100,6 +100,7 @@
         <div class="quickstart-text">
           <h2>Works with Claude. Works with Cursor.<br />Works with anything MCP.</h2>
           <p>Drop this in your <code>claude_desktop_config.json</code>. Done. Your agent can post to six platforms without writing a single OAuth flow.</p>
+          <p style="font-size:0.85rem;opacity:0.75;margin-top:-0.5rem;">Setup: <code>git clone https://github.com/andrezani/outpost.git &amp;&amp; cd outpost/packages/mcp &amp;&amp; npm install &amp;&amp; npm run build</code> — then replace <code>/path/to/outpost</code> above with your clone path.</p>
           <a href="#register" class="btn btn-primary">Get Free API Key →</a>
         </div>
         <div class="quickstart-code">
@@ -112,8 +113,8 @@
           <pre class="code-block"><span class="json-brace">{</span>
   <span class="json-key">"mcpServers"</span><span class="json-punc">:</span> <span class="json-brace">{</span>
     <span class="json-key">"outpost"</span><span class="json-punc">:</span> <span class="json-brace">{</span>
-      <span class="json-key">"command"</span><span class="json-punc">:</span> <span class="json-string">"npx"</span><span class="json-punc">,</span>
-      <span class="json-key">"args"</span><span class="json-punc">:</span> <span class="json-array">[</span><span class="json-string">"-y"</span><span class="json-punc">,</span> <span class="json-string">"@outpost/mcp-server"</span><span class="json-array">]</span><span class="json-punc">,</span>
+      <span class="json-key">"command"</span><span class="json-punc">:</span> <span class="json-string">"node"</span><span class="json-punc">,</span>
+      <span class="json-key">"args"</span><span class="json-punc">:</span> <span class="json-array">[</span><span class="json-string">"/path/to/outpost/packages/mcp/dist/index.js"</span><span class="json-array">]</span><span class="json-punc">,</span>
       <span class="json-key">"env"</span><span class="json-punc">:</span> <span class="json-brace">{</span>
         <span class="json-key">"OUTPOST_API_KEY"</span><span class="json-punc">:</span> <span class="json-string">"op_your_key_here"</span>
       <span class="json-brace">}</span>
