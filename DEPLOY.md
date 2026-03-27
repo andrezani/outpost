@@ -1,63 +1,102 @@
-# 🚀 DEPLOY.md — Outpost Staging (copy-paste line by line)
+# 🚀 DEPLOY.md — Outpost on Railway
 
 **Goal:** API → Railway | Landing → Vercel  
-**Prereqs:** Railway CLI v4.35.0 ✅ | Vercel CLI ✅ | `cd ~/Documents/Dev/Outpost` to start
+**Status:** Code is deployed. Container will self-heal the moment Postgres + Redis are provisioned.
 
 ---
 
-## Step 1 — Railway login (browser popup, ~60s)
+## ⚡ 5-Minute Fix — Provision Postgres + Redis in Railway Dashboard
+
+> The container is crash-looping because `DATABASE_URL` isn't set yet.  
+> Add the two database plugins → Railway auto-injects the URLs → container restarts and boots cleanly.
+
+### Step 1 — Add PostgreSQL (2 min)
+
+1. Go to [railway.com](https://railway.com) → open the **Outpost** project
+2. Click **+ New** (top right of the project canvas)
+3. Choose **Database → PostgreSQL**
+4. Railway creates the Postgres service and **auto-injects `DATABASE_URL`** into your app service
+5. ✅ Done — no manual URL copying needed
+
+### Step 2 — Add Redis (2 min)
+
+1. In the same project, click **+ New** again
+2. Choose **Database → Redis**
+3. Railway creates Redis and **auto-injects `REDIS_URL`** into your app service
+4. ✅ Done
+
+### Step 3 — Verify env vars (1 min)
+
+1. Click on your **outpost** service (the API container)
+2. Go to **Variables** tab
+3. Confirm you see `DATABASE_URL` and `REDIS_URL` — both auto-populated by Railway
+4. Also check `NODE_ENV=production` is set (add it if missing)
+
+### Step 4 — Container self-heals 🎉
+
+Railway automatically triggers a redeploy when new env vars are added.  
+The container will:
+1. Run `prisma migrate deploy` (applies schema to the fresh Postgres DB)
+2. Boot the NestJS API
+3. Pass the healthcheck on `/api/v1/health`
+
+**Watch it in:** Railway project → **Deployments** tab → click the latest deployment → view live logs.
+
+### Step 5 — Seed admin org + get your API key
 
 ```bash
-railway login
+# Run from the outpost repo dir
+railway run npm run seed:admin
 ```
 
-## Step 2 — Create Railway project + deploy API
+Output:
+```
+✅ Org created: Hibernyte (id: xxx)
+✅ API Key: sa_xxx
+✅ Tier: free (100 posts/mo)
+```
+
+**Save that API key** — it's your master key for the MCP server and dashboard.
+
+---
+
+## ✅ Verify It's Live
 
 ```bash
-railway init
-railway up
+curl https://outpost-production-b1b8.up.railway.app/api/v1/health
+# Expected: {"status":"ok","timestamp":"..."}
 ```
 
-> After `railway up` completes, Railway gives you a URL like `https://outpost-api-production-xxxx.up.railway.app`.  
-> **Copy it** — you'll need it for env vars and for the landing page CTA.
+Swagger UI: `https://outpost-production-b1b8.up.railway.app/api`
 
-## Step 3 — Set env vars in Railway dashboard
+---
 
-Go to your Railway project → **Variables** tab. Add these:
+## 📋 Additional Env Vars (set after databases are up)
 
-### 🔴 REQUIRED (app won't start without these)
+### 🟡 REQUIRED for OAuth (connect social accounts)
 
-| Variable | Value |
+| Variable | Where to get it |
 |---|---|
-| `DATABASE_URL` | Railway auto-injects this if you add a Postgres plugin — click **+ New → Database → PostgreSQL** |
-| `REDIS_URL` | Railway auto-injects this if you add a Redis plugin — click **+ New → Database → Redis** |
-| `NODE_ENV` | `production` |
-
-> ⚡ Add Postgres + Redis from the Railway dashboard first. They inject `DATABASE_URL` and `REDIS_URL` automatically.
-
-### 🟡 REQUIRED for OAuth to work (needed before connecting social accounts)
-
-| Variable | Notes |
-|---|---|
-| `X_CLIENT_ID` | From developer.twitter.com |
-| `X_CLIENT_SECRET` | From developer.twitter.com |
-| `REDDIT_CLIENT_ID` | From reddit.com/prefs/apps |
-| `REDDIT_CLIENT_SECRET` | From reddit.com/prefs/apps |
-| `INSTAGRAM_CLIENT_ID` | Meta app ID |
-| `INSTAGRAM_CLIENT_SECRET` | Meta app secret |
+| `X_CLIENT_ID` | developer.twitter.com → Your App → Keys |
+| `X_CLIENT_SECRET` | developer.twitter.com → Your App → Keys |
+| `REDDIT_CLIENT_ID` | reddit.com/prefs/apps → your app |
+| `REDDIT_CLIENT_SECRET` | reddit.com/prefs/apps → your app |
+| `INSTAGRAM_CLIENT_ID` | Meta Developer Console → App ID |
+| `INSTAGRAM_CLIENT_SECRET` | Meta Developer Console → App Secret |
 | `THREADS_CLIENT_ID` | Same Meta app ID as Instagram |
 | `THREADS_CLIENT_SECRET` | Same Meta app secret as Instagram |
-| `LINKEDIN_CLIENT_ID` | From linkedin.com/developers/apps |
-| `LINKEDIN_CLIENT_SECRET` | From linkedin.com/developers/apps |
+| `LINKEDIN_CLIENT_ID` | linkedin.com/developers/apps |
+| `LINKEDIN_CLIENT_SECRET` | linkedin.com/developers/apps |
+| `BLUESKY_APP_PASSWORD` | bsky.app → Settings → App Passwords |
 
 ### ⚪ OPTIONAL (safe to skip for first deploy)
 
 | Variable | Notes |
 |---|---|
 | `CORS_ORIGIN` | Default `*` is fine for staging |
-| `RESEND_API_KEY` | Skip — email is silently skipped if not set |
-| `EMAIL_FROM` | ⚠️ **DO NOT set this to a custom domain (e.g. `hello@outpost.dev`) until that domain is verified in the Resend dashboard.** Unverified domain = bounced/spam emails. Default (`onboarding@resend.dev`) works immediately and is safe for staging + early launch. |
-| `SCHEDULER_INTERVAL_MS` | Default 60000ms (60s) — fine |
+| `RESEND_API_KEY` | Email; silently skipped if not set |
+| `EMAIL_FROM` | ⚠️ DO NOT use custom domain until verified in Resend. `onboarding@resend.dev` works immediately. |
+| `SCHEDULER_INTERVAL_MS` | Default 60000ms (60s) |
 | `STRIPE_SECRET_KEY` | Skip — billing returns 400 with clear message if not set |
 | `STRIPE_WEBHOOK_SECRET` | Skip for now |
 | `STRIPE_PRO_PRICE_ID` | Skip for now |
@@ -68,39 +107,32 @@ Go to your Railway project → **Variables** tab. Add these:
 
 ---
 
-## Step 4 — Seed the admin org + get your API key
+## 🔁 Redeploy from Local (when needed)
 
 ```bash
-railway run npm run seed:admin
-```
-
-> This prints your org ID + API key (`sa_xxx`). **Save the API key** — it's your master key.
-
-## Step 5 — Deploy OutpostLanding to Vercel
-
-```bash
-cd ~/Documents/Dev/OutpostLanding
-vercel login
-vercel --prod
+cd ~/Documents/Dev/outpost
+railway up
 ```
 
 ---
 
-## ✅ Verify It's Live
+## 🏗️ Architecture Notes
 
-```bash
-curl https://<your-railway-url>.up.railway.app/api/v1/health
-# Expected: {"status":"ok","timestamp":"..."}
-```
-
-Swagger UI: `https://<your-railway-url>.up.railway.app/api`
+- **Dockerfile:** Multi-stage (builder → production), non-root user, `prisma migrate deploy` runs at startup
+- **railway.toml:** Healthcheck on `/api/v1/health`, `restartPolicyType: ON_FAILURE`, 10 max retries, 300s timeout
+- **Prisma:** v5.22.0, `binaryTargets: ["native", "linux-musl-openssl-3.0.x"]` (Alpine + OpenSSL 3)
+- **Migrations:** `prisma/migrations/0_init/` — schema is tracked, `migrate deploy` applies it idempotently
+- **PORT:** Railway auto-injects `$PORT` — app reads it correctly
+- **No domain required for staging** — Railway + Vercel give free subdomains
 
 ---
 
-## 📋 Notes
+## 🆘 Troubleshooting
 
-- Dockerfile: multi-stage (builder → production), non-root user, prisma migrate runs at startup ✅
-- railway.toml: healthcheck on `/api/v1/health`, restart on failure ✅
-- OutpostLanding vercel.json: cleanUrls, security headers ✅
-- PORT: Railway auto-injects `$PORT` — app reads it correctly ✅
-- No domain required for staging — Railway + Vercel give free subdomains ✅
+| Symptom | Cause | Fix |
+|---|---|---|
+| Container crash-loops immediately | `DATABASE_URL` not set | Add Postgres plugin in Railway dashboard |
+| `prisma migrate deploy` fails | Can't reach Postgres | Check that Postgres service is in the same Railway project |
+| 404 on all routes | Container not started / wrong URL | Check Railway Deployments tab → view logs |
+| Waitlist POST returns error | API down or `DATABASE_URL` missing | Fix DB first, then retry |
+| `seed:admin` fails | Migrations not applied | Run `railway run npx prisma migrate deploy` manually first |

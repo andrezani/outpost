@@ -51,9 +51,8 @@ export class AppModule implements NestModule {
         // Stripe webhooks are authenticated via signature — not API key
         { path: 'webhooks/stripe', method: RequestMethod.POST },
         // Public endpoints — no API key required (landing page counter, waitlist, etc.)
-        // Uses path-to-regexp v8 wildcard syntax ({*path})
-        { path: 'public/{*path}', method: RequestMethod.GET },
-        { path: 'public/{*path}', method: RequestMethod.POST },
+        { path: 'public/founding-seats', method: RequestMethod.GET },
+        { path: 'public/waitlist', method: RequestMethod.POST },
       )
       .forRoutes('*');
   }
