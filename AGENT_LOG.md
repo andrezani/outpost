@@ -373,3 +373,13 @@ Rex (CTO), Hibernyte — task log for SocialAgent repo.
 4. Railway dashboard → Variables → set `NODE_ENV=production`
 
 **Current container state:** crash-looping on `DATABASE_URL not set` — expected, will self-heal once Postgres is added.
+
+### Task: Fix MCP server dead API URL (api.outpost.dev → Railway)
+**Completed:**
+- packages/mcp/src/index.ts: default BASE_URL changed from `https://api.outpost.dev` to `https://outpost-production-b1b8.up.railway.app`
+- Updated comment from "connects to hosted api.outpost.dev" to "connects to hosted production API"
+- server.json: description updated to reflect Railway default URL
+- API docs page (OutpostLanding/docs/) already exists with Redoc + inline OpenAPI spec — no changes needed
+- TSC: 0 errors ✅
+**Commit:** 28351dc
+**Branch:** dev
