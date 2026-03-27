@@ -26,21 +26,21 @@
         <a href="#docs">Docs</a>
         <a href="#quickstart">Quick Start</a>
       </div>
-      <a href="#waitlist" class="btn btn-sm btn-primary">Join Waitlist</a>
+      <a href="#register" class="btn btn-sm btn-primary">Get Free API Key</a>
     </div>
   </nav>
 
   <!-- HERO -->
   <section class="hero">
     <div class="container">
-      <div class="badge">Now in early access</div>
+      <div class="badge">Now live — free tier, no waitlist</div>
       <h1 class="hero-headline">Social media APIs<br />for AI agents.</h1>
       <p class="hero-sub">
         Post to X, LinkedIn, Instagram, Reddit, Bluesky, and Threads from any AI agent,
         LLM workflow, or MCP client. One API. Six platforms. No dashboard required.
       </p>
       <div class="hero-ctas">
-        <a href="#waitlist" class="btn btn-primary btn-lg">Join the Waitlist</a>
+        <a href="#register" class="btn btn-primary btn-lg">Get Free API Key →</a>
         <a href="#quickstart" class="btn btn-ghost btn-lg">View Docs →</a>
       </div>
       <p class="hero-problem">
@@ -100,7 +100,7 @@
         <div class="quickstart-text">
           <h2>Works with Claude. Works with Cursor.<br />Works with anything MCP.</h2>
           <p>Drop this in your <code>claude_desktop_config.json</code>. Done. Your agent can post to six platforms without writing a single OAuth flow.</p>
-          <a href="#waitlist" class="btn btn-primary">Join the Waitlist →</a>
+          <a href="#register" class="btn btn-primary">Get Free API Key →</a>
         </div>
         <div class="quickstart-code">
           <div class="code-header">
@@ -174,7 +174,7 @@
             <li>✓ REST API + MCP server</li>
             <li>✓ Perfect for testing &amp; prototyping</li>
           </ul>
-          <a href="#waitlist" class="btn btn-outline btn-full" id="cta-free">Join Waitlist</a>
+          <a href="#register" class="btn btn-outline btn-full" id="cta-free">Get Free API Key →</a>
         </div>
 
         <!-- PRO -->
@@ -222,16 +222,47 @@
     </div>
   </section>
 
-  <!-- WAITLIST -->
-  <section class="waitlist" id="waitlist">
+  <!-- REGISTER — Free API key, no waitlist -->
+  <section class="waitlist" id="register">
     <div class="container">
       <div class="waitlist-inner">
-        <h2 class="waitlist-title">Get early access.</h2>
-        <p class="waitlist-sub">We're in closed early access. Drop your email and we'll reach out when your spot is ready.</p>
-        <form
-          class="waitlist-form"
-          method="POST"
-        >
+        <h2 class="waitlist-title">Get your free API key.</h2>
+        <p class="waitlist-sub">No waitlist. No credit card. Start posting in under 2 minutes.</p>
+        <form class="waitlist-form" id="register-form" method="POST">
+          <div class="waitlist-fields">
+            <input
+              type="text"
+              name="orgName"
+              id="register-org"
+              class="waitlist-input"
+              placeholder="Your project or org name"
+              required
+              autocomplete="organization"
+            />
+            <input
+              type="email"
+              name="email"
+              id="register-email"
+              class="waitlist-input"
+              placeholder="you@example.com"
+              required
+              autocomplete="email"
+            />
+            <button type="submit" class="btn btn-primary waitlist-btn">Get API Key →</button>
+          </div>
+          <p class="waitlist-note" id="register-note">Free forever. 100 posts/month. No card required.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAITLIST — Pro / paid tiers -->
+  <section class="waitlist" id="waitlist" style="padding-top: 0;">
+    <div class="container">
+      <div class="waitlist-inner">
+        <h2 class="waitlist-title">Join the Pro waitlist.</h2>
+        <p class="waitlist-sub">Pro and Team tiers coming soon. Drop your email and we'll reach out when billing is live.</p>
+        <form class="waitlist-form" id="waitlist-form" method="POST">
           <div class="waitlist-fields">
             <input
               type="email"
@@ -243,7 +274,7 @@
             />
             <button type="submit" class="btn btn-primary waitlist-btn">Join Waitlist</button>
           </div>
-          <p class="waitlist-note">No spam. No credit card. We'll email you when you're in.</p>
+          <p class="waitlist-note" id="waitlist-note">No spam. We'll email you when Pro is live.</p>
         </form>
       </div>
     </div>

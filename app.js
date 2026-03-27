@@ -1,25 +1,25 @@
 /**
  * Outpost Landing Page — app.js
- * 
+ *
  * Handles:
  * 1. Stripe checkout link wiring (swap placeholders with real URLs when available)
- * 2. Founding rate seat counter (fetches from API or falls back to static)
+ * 2. Founding rate seat counter (fetches from API)
  * 3. Smooth nav highlighting
+ * 4. Free tier registration — calls POST /api/v1/auth/register, displays real API key inline
+ * 5. Pro waitlist form — calls POST /api/v1/public/waitlist
  */
 
 // ─────────────────────────────────────────────
-// CONFIG — swap these when Stripe account is ready
+// CONFIG
 // ─────────────────────────────────────────────
 const STRIPE_LINKS = {
-  pro: null,   // TODO: 'https://buy.stripe.com/XXX' — Pro $29/mo
-  team: null,  // TODO: 'https://buy.stripe.com/XXX' — Team $99/mo
+  pro: null,          // TODO: 'https://buy.stripe.com/XXX' — Pro $29/mo
+  team: null,         // TODO: 'https://buy.stripe.com/XXX' — Team $99/mo
   teamFounding: null, // TODO: 'https://buy.stripe.com/XXX' — Team Founding $49/mo
 };
 
-// API base URL — Railway staging (live). Swap for https://api.outpost.dev when domain is verified.
 const API_BASE = 'https://outpost-production-b1b8.up.railway.app';
 
-// Founding seats total
 const FOUNDING_SEATS_TOTAL = 50;
 
 // ─────────────────────────────────────────────
@@ -35,7 +35,6 @@ function wireStripeCTAs() {
     proCta.rel = 'noopener';
     proCta.textContent = 'Start Pro →';
   }
-  // If Stripe not configured, cta-pro already points to #waitlist in HTML
 
   if (teamCta) {
     const teamLink = STRIPE_LINKS.teamFounding || STRIPE_LINKS.team;
@@ -46,7 +45,6 @@ function wireStripeCTAs() {
       teamCta.textContent = 'Start Team →';
     }
   }
-  // If Stripe not configured, cta-team already points to #waitlist in HTML
 }
 
 // ─────────────────────────────────────────────
@@ -55,14 +53,8 @@ function wireStripeCTAs() {
 async function loadFoundingCount() {
   const countEl = document.getElementById('founding-count');
   const badgeEl = document.getElementById('founding-badge');
-  
-  if (!countEl || !badgeEl) return;
 
-  if (!API_BASE) {
-    // API not configured yet — show full seats (no customers yet)
-    countEl.textContent = FOUNDING_SEATS_TOTAL;
-    return;
-  }
+  if (!countEl || !badgeEl) return;
 
   try {
     const res = await fetch(`${API_BASE}/api/v1/public/founding-seats`, {
@@ -71,13 +63,8 @@ async function loadFoundingCount() {
     if (!res.ok) throw new Error('API error');
     const { remaining } = await res.json();
     countEl.textContent = remaining;
-    
-    // Hide badge if no founding rate active or seats exhausted
-    if (remaining <= 0) {
-      badgeEl.style.display = 'none';
-    }
+    if (remaining <= 0) badgeEl.style.display = 'none';
   } catch {
-    // Silently fail — static fallback is fine
     countEl.textContent = FOUNDING_SEATS_TOTAL;
   }
 }
@@ -111,7 +98,7 @@ function initNavHighlight() {
 }
 
 // ─────────────────────────────────────────────
-// Copy-to-clipboard for API key placeholder
+// Copy-to-clipboard for code blocks
 // ─────────────────────────────────────────────
 function initCodeCopy() {
   document.querySelectorAll('.code-block').forEach((block) => {
@@ -129,71 +116,147 @@ function initCodeCopy() {
 }
 
 // ─────────────────────────────────────────────
-// Waitlist form — submits to Outpost API
-// Falls back to local capture when API_BASE is null (pre-launch)
+// FREE TIER REGISTRATION
+// Calls POST /api/v1/auth/register → shows real API key inline
 // ─────────────────────────────────────────────
-function initWaitlistForm() {
-  const form = document.querySelector('.waitlist-form');
+function initRegisterForm() {
+  const form = document.getElementById('register-form');
   if (!form) return;
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const emailInput = form.querySelector('input[type="email"]');
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const email = emailInput ? emailInput.value.trim() : '';
+    const orgInput  = document.getElementById('register-org');
+    const emailInput = document.getElementById('register-email');
+    const submitBtn  = form.querySelector('button[type="submit"]');
+    const note       = document.getElementById('register-note');
 
-    if (!email) return;
+    const orgName = orgInput ? orgInput.value.trim() : '';
+    const email   = emailInput ? emailInput.value.trim() : '';
 
-    // Disable button during submission
+    if (!orgName || !email) return;
+
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Joining…';
+      submitBtn.textContent = 'Creating account…';
     }
 
-    if (!API_BASE) {
-      // API not live yet (domain not registered) — log locally and show success UI
-      console.info('[Outpost] Waitlist signup captured locally (API not configured):', email);
-      showWaitlistSuccess(form, email);
-      return;
-    }
-
-    // Submit to Outpost API — our own DB, no third-party limits
     try {
-      const res = await fetch(`${API_BASE}/api/v1/public/waitlist`, {
+      const res = await fetch(`${API_BASE}/api/v1/auth/register`, {
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'landing' }),
+        body: JSON.stringify({ orgName, email }),
       });
 
       if (res.ok) {
-        showWaitlistSuccess(form, email);
+        const data = await res.json();
+        showApiKeySuccess(form, data.apiKey, orgName);
       } else {
-        throw new Error(`API error: ${res.status}`);
+        const err = await res.json().catch(() => ({}));
+        const msg = Array.isArray(err.message) ? err.message[0] : (err.message || `Error ${res.status}`);
+        throw new Error(msg);
       }
     } catch (err) {
-      console.error('[Outpost] Waitlist submission failed:', err);
-      // Re-enable on failure so user can retry
+      console.error('[Outpost] Registration failed:', err);
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Join Waitlist';
+        submitBtn.textContent = 'Get API Key →';
       }
-      const note = form.querySelector('.waitlist-note');
       if (note) {
-        note.textContent = 'Something went wrong — try again or email hello@outpost.dev';
+        note.textContent = err.message || 'Something went wrong — try again or email hello@outpost.dev';
         note.style.color = '#ff6b6b';
       }
     }
   });
 }
 
-function showWaitlistSuccess(form, email) {
+function showApiKeySuccess(form, apiKey, orgName) {
   form.innerHTML = `
     <div class="waitlist-success">
-      <p class="waitlist-success-title">✅ You're on the list.</p>
-      <p class="waitlist-success-sub">We'll reach out to <strong>${email}</strong> when your spot is ready.</p>
+      <p class="waitlist-success-title">✅ You're in. Here's your API key.</p>
+      <p class="waitlist-success-sub">Save this — it won't be shown again.</p>
+      <div class="api-key-display" id="api-key-value" title="Click to copy" style="
+        font-family: 'JetBrains Mono', monospace;
+        background: #1a1a2e;
+        border: 1px solid #6c63ff;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin: 12px 0;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        word-break: break-all;
+        color: #a78bfa;
+      ">${apiKey}</div>
+      <p style="font-size: 0.8rem; color: #888; margin: 4px 0 0;">Click key to copy &nbsp;·&nbsp; <a href="#quickstart" style="color: #6c63ff;">View quick start →</a></p>
     </div>
   `;
+
+  // Wire click-to-copy on the key
+  const keyEl = document.getElementById('api-key-value');
+  if (keyEl) {
+    keyEl.addEventListener('click', () => {
+      navigator.clipboard.writeText(apiKey).then(() => {
+        const orig = keyEl.style.outline;
+        keyEl.style.outline = '2px solid #6c63ff';
+        keyEl.title = 'Copied!';
+        setTimeout(() => { keyEl.style.outline = orig; keyEl.title = 'Click to copy'; }, 1000);
+      });
+    });
+  }
+}
+
+// ─────────────────────────────────────────────
+// PRO WAITLIST FORM (Pro/Team paid tiers)
+// ─────────────────────────────────────────────
+function initWaitlistForm() {
+  const form = document.getElementById('waitlist-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const emailInput = form.querySelector('input[type="email"]');
+    const submitBtn  = form.querySelector('button[type="submit"]');
+    const note       = document.getElementById('waitlist-note');
+    const email      = emailInput ? emailInput.value.trim() : '';
+
+    if (!email) return;
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Joining…';
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/public/waitlist`, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'landing-pro' }),
+      });
+
+      if (res.ok) {
+        form.innerHTML = `
+          <div class="waitlist-success">
+            <p class="waitlist-success-title">✅ You're on the list.</p>
+            <p class="waitlist-success-sub">We'll email <strong>${email}</strong> when Pro billing is live.</p>
+          </div>
+        `;
+      } else {
+        throw new Error(`API error: ${res.status}`);
+      }
+    } catch (err) {
+      console.error('[Outpost] Waitlist submission failed:', err);
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Join Waitlist';
+      }
+      if (note) {
+        note.textContent = 'Something went wrong — try again or email hello@outpost.dev';
+        note.style.color = '#ff6b6b';
+      }
+    }
+  });
 }
 
 // ─────────────────────────────────────────────
@@ -204,5 +267,6 @@ document.addEventListener('DOMContentLoaded', () => {
   loadFoundingCount();
   initNavHighlight();
   initCodeCopy();
+  initRegisterForm();
   initWaitlistForm();
 });
