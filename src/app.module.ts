@@ -16,6 +16,8 @@ import { AccountsModule } from './modules/accounts/accounts.module';
 import { PlatformsModule } from './modules/platforms/platforms.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { BillingModule } from './modules/billing/billing.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { McpModule } from './modules/mcp/mcp.module';
 import { ApiKeyMiddleware } from './middleware/api-key.middleware';
 import { HealthController } from './health/health.controller';
 
@@ -35,6 +37,10 @@ import { HealthController } from './health/health.controller';
     WebhooksModule,
     // Phase 3: Stripe billing
     BillingModule,
+    // Admin API (server-to-server, protected by AdminGuard + ADMIN_API_KEY)
+    AdminModule,
+    // Phase 2: HTTP MCP transport (POST /api/v1/mcp)
+    McpModule,
   ],
   controllers: [HealthController],
 })
@@ -53,6 +59,9 @@ export class AppModule implements NestModule {
         // Public endpoints — no API key required (landing page counter, waitlist, etc.)
         { path: 'public/founding-seats', method: RequestMethod.GET },
         { path: 'public/waitlist', method: RequestMethod.POST },
+        // Admin API uses X-Admin-Key, not org API key
+        { path: 'admin', method: RequestMethod.ALL },
+        { path: 'admin/*path', method: RequestMethod.ALL },
       )
       .forRoutes('*');
   }
