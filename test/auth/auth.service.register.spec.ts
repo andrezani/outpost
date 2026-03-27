@@ -97,7 +97,7 @@ describe('AuthService.register()', () => {
     expect(result.tier).toBe('free');
     expect(result.limits.postsPerMonth).toBe(TIER_LIMITS.free.postsPerMonth);
     expect(result.limits.platforms).toBe(TIER_LIMITS.free.platformCount);
-    expect(result.quickstart).toContain('outpost.dev');
+    expect(result.quickstart).toContain('outpost-landing-one.vercel.app');
   });
 
   it('normalizes email to lowercase before lookup', async () => {
