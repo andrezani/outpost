@@ -2,6 +2,36 @@
 
 ---
 
+## 2026-03-27 (npm publish attempt + OAuth diagnostic)
+
+### Task: CRITICAL — publish @outpost/mcp-server + fix quickstart URL + OAuth diagnostic
+**Task ID:** fb30e467-2aa1-4852-995c-2885fa110396
+
+**npm publish:** SKIPPED — `npm whoami` returned ENEEDAUTH (not logged in). Per task rules, did not block on this.
+
+**Quickstart URL fix:** Already correct in auth.service.ts (`https://outpost-landing-one.vercel.app/#quickstart`). No code change needed.
+
+**Landing page fix (OutpostLanding):**
+- Replaced broken `npx -y @outpost/mcp-server` snippet with `node` + repo clone path fallback
+- Added inline setup instructions: `git clone ... && npm install && npm run build`
+- Commit: ed177d5 (OutpostLanding dev branch, pushed to origin)
+
+**OAuth diagnostic:**
+- All 5 OAuth providers (X, LinkedIn, Reddit, Instagram, Threads) are BROKEN in production
+- Root cause: Zero OAuth env vars set in Railway (only DATABASE_URL, REDIS_URL, PORT, NODE_ENV exist)
+- Architecture is complete and correct — purely a missing config issue
+- Full diagnosis written to: `OAUTH_STATUS.md`
+  - Priority order: Reddit (5 min) → X (15 min) → LinkedIn (days, needs approval) → Instagram/Threads (weeks, Meta review)
+  - Bluesky works without env vars (app password based)
+  - Exact env vars needed + where to get them documented per platform
+
+**TSC:** 0 errors ✅ (pre-commit hook confirmed)
+**Commits:**
+- Outpost: a95844d (OAUTH_STATUS.md, merged to main → Railway auto-deploys)
+- OutpostLanding: ed177d5 (landing page fix, pushed to dev → Vercel auto-deploys)
+
+---
+
 ## 2026-03-27 (Admin API module)
 
 ### Task: Admin API module — orgs, waitlist, stats endpoints
