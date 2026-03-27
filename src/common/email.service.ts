@@ -67,7 +67,7 @@ outpost.dev`;
     if (!this.resend) return;
 
     const curlExample =
-      `curl -X POST https://api.outpost.dev/api/v1/publish \\\n` +
+      `curl -X POST https://outpost-production-b1b8.up.railway.app/api/v1/publish \\\n` +
       `  -H "X-API-Key: ${apiKey}" \\\n` +
       `  -H "Content-Type: application/json" \\\n` +
       `  -d '{"content": "Hello from Outpost 🚀", "platforms": ["twitter"]}'`;
@@ -82,7 +82,7 @@ Quick start (30 seconds):
 ${curlExample}
 
 Free tier: 100 posts/month, 3 platforms.
-Docs: https://outpost.dev/docs/quickstart
+Docs: https://outpost-landing-one.vercel.app/#quickstart
 
 — Andrea, Outpost`;
 
@@ -94,7 +94,7 @@ Docs: https://outpost.dev/docs/quickstart
   </table>
   <p><strong>Quick start (30 seconds):</strong></p>
   <pre style="background:#f5f5f5;padding:12px;border-radius:6px;font-size:12px;overflow-x:auto">${curlExample}</pre>
-  <p>Free tier: 100 posts/month, 3 platforms.<br>Docs: <a href="https://outpost.dev/docs/quickstart">https://outpost.dev/docs/quickstart</a></p>
+  <p>Free tier: 100 posts/month, 3 platforms.<br>Docs: <a href="https://outpost-landing-one.vercel.app/#quickstart">Quick Start →</a></p>
   <p>— Andrea, Outpost</p>
 </div>`;
 
