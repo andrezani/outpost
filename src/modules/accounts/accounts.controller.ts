@@ -125,6 +125,35 @@ export class AccountsController {
   }
 
   /**
+   * POST /api/v1/accounts/connect/bluesky
+   * Connect a Bluesky account via app password (not OAuth).
+   * Body: { handle: "user.bsky.social", appPassword: "xxxx-xxxx-xxxx-xxxx" }
+   *
+   * IMPORTANT: This must come BEFORE connect/:platform so NestJS matches the
+   * static route first (not the dynamic :platform param).
+   */
+  @Post('connect/bluesky')
+  @ApiOperation({
+    summary: 'Connect Bluesky account',
+    description:
+      'Connect a Bluesky account using an app password (no OAuth flow needed).\n\n' +
+      'Generate an app password at: https://bsky.app/settings/app-passwords',
+  })
+  @ApiBody({ type: ConnectBlueskyDto })
+  @ApiResponse({ status: 201, description: 'Bluesky account connected.' })
+  @ApiResponse({ status: 400, description: 'Invalid handle or app password.' })
+  connectBluesky(
+    @Body() dto: ConnectBlueskyDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.service.connectBluesky(
+      req.organization.id,
+      dto.handle,
+      dto.appPassword,
+    );
+  }
+
+  /**
    * POST /api/v1/accounts/connect/:platform
    * Start OAuth flow for a platform. Returns authUrl to redirect user to.
    * For Bluesky, use the dedicated /connect/bluesky endpoint instead.
@@ -199,32 +228,6 @@ export class AccountsController {
       platform as SocialPlatform,
       dto.code,
       dto.state,
-    );
-  }
-
-  /**
-   * POST /api/v1/accounts/connect/bluesky
-   * Connect a Bluesky account via app password (not OAuth).
-   * Body: { handle: "user.bsky.social", appPassword: "xxxx-xxxx-xxxx-xxxx" }
-   */
-  @Post('connect/bluesky')
-  @ApiOperation({
-    summary: 'Connect Bluesky account',
-    description:
-      'Connect a Bluesky account using an app password (no OAuth flow needed).\n\n' +
-      'Generate an app password at: https://bsky.app/settings/app-passwords',
-  })
-  @ApiBody({ type: ConnectBlueskyDto })
-  @ApiResponse({ status: 201, description: 'Bluesky account connected.' })
-  @ApiResponse({ status: 400, description: 'Invalid handle or app password.' })
-  connectBluesky(
-    @Body() dto: ConnectBlueskyDto,
-    @Req() req: AuthenticatedRequest,
-  ) {
-    return this.service.connectBluesky(
-      req.organization.id,
-      dto.handle,
-      dto.appPassword,
     );
   }
 }
