@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outpost — Social media APIs for AI agents</title>
+  <meta name="description" content="Post to X, LinkedIn, Instagram, Reddit, Bluesky, and Threads from any AI agent, LLM workflow, or MCP client. One API. Six platforms. No dashboard required." />
+  <meta property="og:title" content="Outpost — Social media APIs for AI agents" />
+  <meta property="og:description" content="One POST to /api/v1/publish. Platform routing, format normalization, error handling — all handled." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">⬡</span>
+        <span class="logo-text">Outpost</span>
+      </a>
+      <div class="nav-links">
+        <a href="#pricing">Pricing</a>
+        <a href="#docs">Docs</a>
+        <a href="#quickstart">Quick Start</a>
+      </div>
+      <a href="#register" class="btn btn-sm btn-primary">Get Free API Key</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="badge">Now live — free tier, no waitlist</div>
+      <h1 class="hero-headline">Social media APIs<br />for AI agents.</h1>
+      <p class="hero-sub">
+        Post to X, LinkedIn, Instagram, Reddit, Bluesky, and Threads from any AI agent,
+        LLM workflow, or MCP client. One API. Six platforms. No dashboard required.
+      </p>
+      <div class="hero-ctas">
+        <a href="#register" class="btn btn-primary btn-lg">Get Free API Key →</a>
+        <a href="#quickstart" class="btn btn-ghost btn-lg">View Docs →</a>
+      </div>
+      <p class="hero-problem">
+        Every social API was built for humans clicking buttons.<br />
+        Outpost was built for agents calling endpoints. <strong>Your agent can read our errors. Not just log them.</strong>
+      </p>
+    </div>
+  </section>
+
+  <!-- PLATFORM LOGOS -->
+  <section class="platforms">
+    <div class="container">
+      <p class="platforms-label">Works with</p>
+      <div class="platforms-row">
+        <span class="platform-pill">𝕏 / Twitter</span>
+        <span class="platform-pill">in LinkedIn</span>
+        <span class="platform-pill">📷 Instagram</span>
+        <span class="platform-pill">👽 Reddit</span>
+        <span class="platform-pill">🦋 Bluesky</span>
+        <span class="platform-pill">🧵 Threads</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUR FEATURES -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="features-grid features-grid--four">
+        <div class="feature-card">
+          <div class="feature-icon">🔌</div>
+          <h3>MCP-Native</h3>
+          <p>Plug directly into Claude Desktop, Cursor, or any MCP client. Ship social media in one config block.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Unified Endpoint</h3>
+          <p>One POST to <code>/api/v1/publish</code>. Platform routing, format normalization, error handling — all handled.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <h3>LLM-Friendly Errors</h3>
+          <p>Every error includes an <code>agentHint</code> field your agent can act on. Not just "400 Bad Request" — but <em>"Retry after 03:15 UTC. Rate limit resets every 15 minutes."</em></p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🏢</div>
+          <h3>Multi-Tenant</h3>
+          <p>Each org isolates its own platform credentials. Your customers' tokens never touch each other.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICKSTART / MCP SNIPPET -->
+  <section class="quickstart" id="quickstart">
+    <div class="container">
+      <div class="quickstart-inner">
+        <div class="quickstart-text">
+          <h2>Works with Claude. Works with Cursor.<br />Works with anything MCP.</h2>
+          <p>Drop this in your <code>claude_desktop_config.json</code>. Done. Your agent can post to six platforms without writing a single OAuth flow.</p>
+          <p style="font-size:0.85rem;opacity:0.75;margin-top:-0.5rem;">Setup: <code>git clone https://github.com/andrezani/outpost.git &amp;&amp; cd outpost/packages/mcp &amp;&amp; npm install &amp;&amp; npm run build</code> — then replace <code>/path/to/outpost</code> above with your clone path.</p>
+          <a href="#register" class="btn btn-primary">Get Free API Key →</a>
+        </div>
+        <div class="quickstart-code">
+          <div class="code-header">
+            <span class="code-dot red"></span>
+            <span class="code-dot yellow"></span>
+            <span class="code-dot green"></span>
+            <span class="code-file">claude_desktop_config.json</span>
+          </div>
+          <pre class="code-block"><span class="json-brace">{</span>
+  <span class="json-key">"mcpServers"</span><span class="json-punc">:</span> <span class="json-brace">{</span>
+    <span class="json-key">"outpost"</span><span class="json-punc">:</span> <span class="json-brace">{</span>
+      <span class="json-key">"command"</span><span class="json-punc">:</span> <span class="json-string">"node"</span><span class="json-punc">,</span>
+      <span class="json-key">"args"</span><span class="json-punc">:</span> <span class="json-array">[</span><span class="json-string">"/path/to/outpost/packages/mcp/dist/index.js"</span><span class="json-array">]</span><span class="json-punc">,</span>
+      <span class="json-key">"env"</span><span class="json-punc">:</span> <span class="json-brace">{</span>
+        <span class="json-key">"OUTPOST_API_KEY"</span><span class="json-punc">:</span> <span class="json-string">"op_your_key_here"</span>
+      <span class="json-brace">}</span>
+    <span class="json-brace">}</span>
+  <span class="json-brace">}</span>
+<span class="json-brace">}</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REST SNIPPET -->
+  <section class="rest-demo">
+    <div class="container">
+      <h2 class="section-title">One endpoint. Every platform.</h2>
+      <p class="section-sub">No platform-specific SDKs. No OAuth headaches. No format wrangling.</p>
+      <div class="code-tabs">
+        <div class="code-header">
+          <span class="code-dot red"></span>
+          <span class="code-dot yellow"></span>
+          <span class="code-dot green"></span>
+          <span class="code-file">POST /api/v1/publish</span>
+        </div>
+        <pre class="code-block"><span class="json-comment">// Post to LinkedIn from your agent</span>
+<span class="json-keyword">fetch</span>(<span class="json-string">"https://outpost-production-b1b8.up.railway.app/api/v1/publish"</span><span class="json-punc">,</span> <span class="json-brace">{</span>
+  method<span class="json-punc">:</span> <span class="json-string">"POST"</span><span class="json-punc">,</span>
+  headers<span class="json-punc">:</span> <span class="json-brace">{</span>
+    <span class="json-string">"X-API-Key"</span><span class="json-punc">:</span> <span class="json-string">"op_your_key_here"</span><span class="json-punc">,</span>
+    <span class="json-string">"Content-Type"</span><span class="json-punc">:</span> <span class="json-string">"application/json"</span>
+  <span class="json-brace">}</span><span class="json-punc">,</span>
+  body<span class="json-punc">:</span> JSON.stringify(<span class="json-brace">{</span>
+    platform<span class="json-punc">:</span> <span class="json-string">"linkedin"</span><span class="json-punc">,</span>
+    content<span class="json-punc">:</span> <span class="json-string">"Shipped my first AI-native app today 🚀"</span><span class="json-punc">,</span>
+    accountId<span class="json-punc">:</span> <span class="json-string">"acct_abc123"</span>
+  <span class="json-brace">}</span>)
+<span class="json-brace">}</span>)</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <h2 class="section-title">Simple pricing. No surprises.</h2>
+      <p class="section-sub">100 free posts/month. No credit card. Upgrade when you need volume. <em>(Competitors give you 20.)</em></p>
+
+      <div class="pricing-grid">
+        <!-- FREE -->
+        <div class="pricing-card">
+          <div class="pricing-tier">Free</div>
+          <div class="pricing-price">
+            <span class="price-amount">$0</span>
+            <span class="price-period">/month</span>
+          </div>
+          <ul class="pricing-features">
+            <li>✓ 100 posts/month</li>
+            <li>✓ 3 platforms</li>
+            <li>✓ REST API + MCP server</li>
+            <li>✓ Perfect for testing &amp; prototyping</li>
+          </ul>
+          <a href="#register" class="btn btn-outline btn-full" id="cta-free">Get Free API Key →</a>
+        </div>
+
+        <!-- PRO -->
+        <div class="pricing-card pricing-card--featured">
+          <div class="pricing-badge">Most Popular</div>
+          <div class="pricing-tier">Pro</div>
+          <div class="pricing-price">
+            <span class="price-amount">$29</span>
+            <span class="price-period">/month</span>
+          </div>
+          <ul class="pricing-features">
+            <li>✓ 1,000 posts/month</li>
+            <li>✓ All 6 platforms</li>
+            <li>✓ Webhooks</li>
+            <li>✓ Priority support</li>
+          </ul>
+          <a href="#waitlist" class="btn btn-primary btn-full" id="cta-pro">Join Waitlist →</a>
+        </div>
+
+        <!-- TEAM -->
+        <div class="pricing-card pricing-card--founding" id="team-card">
+          <div class="founding-rate-tag">⚡ Founding Rate</div>
+          <div class="pricing-tier">Team</div>
+          <div class="pricing-price">
+            <span class="price-amount">$49</span>
+            <span class="price-period">/month</span>
+          </div>
+          <div class="pricing-regular-price">
+            <s>Regular price $99/mo</s> — yours forever at $49
+          </div>
+          <div class="founding-badge" id="founding-badge">
+            🔥 <span id="founding-count">50</span> seats left · locked permanently
+          </div>
+          <ul class="pricing-features">
+            <li>✓ Unlimited posts</li>
+            <li>✓ All 6 platforms</li>
+            <li>✓ Multi-org isolation</li>
+            <li>✓ Webhooks + analytics</li>
+            <li>✓ Dedicated support</li>
+            <li>✓ <strong>$49/mo forever — never increases</strong></li>
+          </ul>
+          <a href="#waitlist" class="btn btn-primary btn-full" id="cta-team">Lock Founding Rate →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REGISTER — Free API key, no waitlist -->
+  <section class="waitlist" id="register">
+    <div class="container">
+      <div class="waitlist-inner">
+        <h2 class="waitlist-title">Get your free API key.</h2>
+        <p class="waitlist-sub">No waitlist. No credit card. Start posting in under 2 minutes.</p>
+        <form class="waitlist-form" id="register-form" method="POST">
+          <div class="waitlist-fields">
+            <input
+              type="text"
+              name="orgName"
+              id="register-org"
+              class="waitlist-input"
+              placeholder="Your project or org name"
+              required
+              autocomplete="organization"
+            />
+            <input
+              type="email"
+              name="email"
+              id="register-email"
+              class="waitlist-input"
+              placeholder="you@example.com"
+              required
+              autocomplete="email"
+            />
+            <button type="submit" class="btn btn-primary waitlist-btn">Get API Key →</button>
+          </div>
+          <p class="waitlist-note" id="register-note">Free forever. 100 posts/month. No card required.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAITLIST — Pro / paid tiers -->
+  <section class="waitlist" id="waitlist" style="padding-top: 0;">
+    <div class="container">
+      <div class="waitlist-inner">
+        <h2 class="waitlist-title">Join the Pro waitlist.</h2>
+        <p class="waitlist-sub">Pro and Team tiers coming soon. Drop your email and we'll reach out when billing is live.</p>
+        <form class="waitlist-form" id="waitlist-form" method="POST">
+          <div class="waitlist-fields">
+            <input
+              type="email"
+              name="email"
+              class="waitlist-input"
+              placeholder="you@example.com"
+              required
+              autocomplete="email"
+            />
+            <button type="submit" class="btn btn-primary waitlist-btn">Join Waitlist</button>
+          </div>
+          <p class="waitlist-note" id="waitlist-note">No spam. We'll email you when Pro is live.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-logo">
+          <span class="logo-icon">⬡</span>
+          <span class="logo-text">Outpost</span>
+        </div>
+        <div class="footer-links">
+          <a href="#pricing">Pricing</a>
+          <a href="#quickstart">Docs</a>
+          <a href="#features">Features</a>
+          <a href="mailto:hello@outpost.dev">Contact</a>
+        </div>
+        <p class="footer-copy">© 2026 Outpost. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
