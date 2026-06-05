@@ -47,6 +47,19 @@ curl -X POST http://localhost:3000/api/v1/publish \
 
 ---
 
+## Monorepo map
+
+This repository is now the canonical Outpost monorepo:
+
+- `./` — NestJS API, Prisma schema, Docker infra, and core product code
+- `packages/mcp/` — canonical in-repo MCP package
+- `packages/outpost-mcp-standalone/` — legacy standalone MCP repo imported for history/reference
+- `apps/landing/` — static marketing site imported from the old `outpost-landing` repo
+
+The old standalone GitHub repos are legacy sources only. New agent work should happen in this repo on `dev`.
+
+---
+
 ## Quick Start
 
 ### Prerequisites
