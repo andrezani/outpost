@@ -1,0 +1,28 @@
+# Smithery configuration — https://smithery.ai/docs/config#smitheryyaml
+# Outpost MCP Server: publish to X, LinkedIn, Reddit, Instagram, Bluesky, Threads from any AI agent
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required:
+      - apiKey
+    properties:
+      apiKey:
+        type: string
+        description: Your Outpost API key. Get one at outpost.dev.
+      apiUrl:
+        type: string
+        description: >
+          Outpost API base URL. Defaults to https://api.outpostapi.dev.
+          Override this if you are self-hosting Outpost.
+        default: "https://api.outpostapi.dev"
+  commandFunction: |-
+    config => ({
+      command: 'node',
+      args: ['index.js'],
+      env: {
+        OUTPOST_API_KEY: config.apiKey,
+        OUTPOST_API_URL: config.apiUrl || 'https://api.outpostapi.dev'
+      }
+    })
