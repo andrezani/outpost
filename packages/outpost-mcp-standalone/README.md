@@ -59,7 +59,7 @@ Same config structure — refer to your client's MCP documentation for where to 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `OUTPOST_API_KEY` | ✅ Yes | — | Your Outpost API key ([get one here](https://outpostapi.dev)) |
-| `OUTPOST_API_URL` | No | `https://api.outpostapi.dev` | Outpost API base URL (for self-hosted instances) |
+| `OUTPOST_API_URL` | No | `https://outpost.hibernyte.com` | Outpost API base URL (for self-hosted instances) |
 
 ---
 

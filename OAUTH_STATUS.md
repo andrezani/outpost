@@ -1,9 +1,11 @@
 # OAUTH_STATUS.md — Outpost OAuth Diagnostic
 *Written by Rex (CTO) — 2026-03-27*
 
+> **Updated 2026-09-22:** the API moved from Railway to Coolify on the VPS (`https://outpost.hibernyte.com`). Callback URLs and env-var locations below reflect the new host. Still true: no social OAuth client IDs/secrets are set in production yet.
+
 ## TL;DR
 
-**ALL OAuth providers are broken in production.** The architecture is complete and correct — but every provider needs its credentials set as Railway environment variables. Currently the `.env` file only contains `DATABASE_URL`, `REDIS_URL`, `INNGEST_*`, `PORT`, `NODE_ENV`. Zero OAuth keys.
+**ALL OAuth providers are broken in production.** The architecture is complete and correct — but every provider needs its credentials set as environment variables in Coolify. Currently Coolify only has `DATABASE_URL`, `REDIS_URL`, `NODE_ENV`, `PORT`, `CORS_ORIGIN`, `OUTPOST_BASE_URL`, `JWT_SECRET` and `STRIPE_*`. Zero OAuth keys.
 
 ---
 
@@ -22,15 +24,15 @@ No OAuth flow ever starts. The user can't connect any platform.
 ## Platform-by-Platform Status
 
 ### 🔴 X (Twitter) — BROKEN
-**Root cause:** `X_CLIENT_ID` and `X_CLIENT_SECRET` not set in Railway env vars.
+**Root cause:** `X_CLIENT_ID` and `X_CLIENT_SECRET` not set in the Coolify env vars.
 
 **What's needed:**
 1. Go to https://developer.twitter.com/en/apps
 2. Create an OAuth 2.0 app (or use existing)
 3. Enable **OAuth 2.0** + **Read and Write** + **Offline Access** permissions
-4. Add callback URL: `https://outpost-production-b1b8.up.railway.app/api/v1/accounts/connect/x/callback`
+4. Add callback URL: `https://outpost.hibernyte.com/api/v1/accounts/connect/x/callback`
 5. Copy **Client ID** and **Client Secret**
-6. Set in Railway: `X_CLIENT_ID=...` `X_CLIENT_SECRET=...`
+6. Set in Coolify: `X_CLIENT_ID=...` `X_CLIENT_SECRET=...`
 
 **Note:** X uses PKCE flow — code verifier is generated server-side. No additional setup needed once credentials are in.
 
@@ -44,10 +46,10 @@ No OAuth flow ever starts. The user can't connect any platform.
 **What's needed:**
 1. Go to https://www.linkedin.com/developers/apps
 2. Create app / use existing
-3. Under **Auth** tab, add redirect URL: `https://outpost-production-b1b8.up.railway.app/api/v1/accounts/connect/linkedin/callback`
+3. Under **Auth** tab, add redirect URL: `https://outpost.hibernyte.com/api/v1/accounts/connect/linkedin/callback`
 4. **Required OAuth 2.0 scopes:** `w_member_social`, `r_liteprofile`, `r_emailaddress`
    - ⚠️ These require LinkedIn app review for 3rd-party apps — apply at https://www.linkedin.com/developers/apps/{app_id}/products
-5. Set in Railway: `LINKEDIN_CLIENT_ID=...` `LINKEDIN_CLIENT_SECRET=...`
+5. Set in Coolify: `LINKEDIN_CLIENT_ID=...` `LINKEDIN_CLIENT_SECRET=...`
 
 **Scope note:** `w_member_social` (posting) requires **Marketing Developer Platform** product approval from LinkedIn. This takes a few days. Until approved, posting will fail with 403 even with valid credentials.
 
@@ -59,9 +61,9 @@ No OAuth flow ever starts. The user can't connect any platform.
 **What's needed:**
 1. Go to https://www.reddit.com/prefs/apps
 2. Create app — type: **"web app"** (NOT script, NOT installed)
-3. Redirect URI: `https://outpost-production-b1b8.up.railway.app/api/v1/accounts/connect/reddit/callback`
+3. Redirect URI: `https://outpost.hibernyte.com/api/v1/accounts/connect/reddit/callback`
 4. Copy the client ID (under app name) and secret
-5. Set in Railway: `REDDIT_CLIENT_ID=...` `REDDIT_CLIENT_SECRET=...`
+5. Set in Coolify: `REDDIT_CLIENT_ID=...` `REDDIT_CLIENT_SECRET=...`
 
 **Required scopes:** `submit identity read` (already hardcoded in accounts.service.ts line 384)
 
@@ -76,8 +78,8 @@ No OAuth flow ever starts. The user can't connect any platform.
 1. Go to https://developers.facebook.com/apps
 2. Create a Meta app → add **Instagram Graph API** product
 3. ⚠️ **Business requirement:** Instagram posting requires a **professional/creator account** linked to a Facebook Page
-4. Add redirect URI: `https://outpost-production-b1b8.up.railway.app/api/v1/accounts/connect/instagram/callback`
-5. Set in Railway: `INSTAGRAM_CLIENT_ID=...` `INSTAGRAM_CLIENT_SECRET=...`
+4. Add redirect URI: `https://outpost.hibernyte.com/api/v1/accounts/connect/instagram/callback`
+5. Set in Coolify: `INSTAGRAM_CLIENT_ID=...` `INSTAGRAM_CLIENT_SECRET=...`
 
 **This is the hardest one** — Meta requires app review for `instagram_content_publish` permission (used for publishing). Without review, only the test users you add manually can connect. App review can take weeks.
 
@@ -122,7 +124,7 @@ To unblock launch content (fastest → hardest):
 
 ---
 
-## Env Vars to Add in Railway
+## Env Vars to Add in Coolify
 
 ```
 X_CLIENT_ID=
@@ -137,7 +139,7 @@ LINKEDIN_CLIENT_ID=
 LINKEDIN_CLIENT_SECRET=
 ```
 
-Set these in Railway dashboard → outpost service → Variables tab.
+Set these in Coolify → Outpost application → Environment Variables, then redeploy.
 
 ---
 

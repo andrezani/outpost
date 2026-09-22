@@ -14,7 +14,7 @@
  *
  * Config:
  *   OUTPOST_API_KEY  — required (get yours at outpostapi.dev)
- *   OUTPOST_API_URL  — optional (default: https://api.outpostapi.dev)
+ *   OUTPOST_API_URL  — optional (default: https://outpost.hibernyte.com)
  *
  * Usage:
  *   npx @outpost/mcp-server
@@ -26,7 +26,7 @@
 
 const readline = require('readline');
 
-const BASE_URL = (process.env.OUTPOST_API_URL ?? 'https://api.outpostapi.dev').replace(/\/$/, '');
+const BASE_URL = (process.env.OUTPOST_API_URL ?? 'https://outpost.hibernyte.com').replace(/\/$/, '');
 const API_KEY = process.env.OUTPOST_API_KEY;
 const API_PREFIX = `${BASE_URL}/api/v1`;
 

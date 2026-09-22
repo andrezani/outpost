@@ -17,7 +17,7 @@ export class EmailService {
       this.resend = new Resend(apiKey);
     }
     // Default to Resend's shared test sender until outpost.dev is verified in Resend dashboard.
-    // Set EMAIL_FROM=Outpost <hello@outpost.dev> in Railway env ONLY after domain verification.
+    // Set EMAIL_FROM=Outpost <hello@outpost.dev> in the Coolify env ONLY after domain verification.
     this.from = this.config.get<string>('EMAIL_FROM') ?? 'Outpost <onboarding@resend.dev>';
   }
 
@@ -67,7 +67,7 @@ outpost.dev`;
     if (!this.resend) return;
 
     const curlExample =
-      `curl -X POST https://outpost-production-b1b8.up.railway.app/api/v1/publish \\\n` +
+      `curl -X POST https://outpost.hibernyte.com/api/v1/publish \\\n` +
       `  -H "X-API-Key: ${apiKey}" \\\n` +
       `  -H "Content-Type: application/json" \\\n` +
       `  -d '{"content": "Hello from Outpost 🚀", "platforms": ["twitter"]}'`;
