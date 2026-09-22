@@ -72,7 +72,7 @@ export class AuthService {
           postsPerMonth: freeLimits.postsPerMonth,
           platforms: freeLimits.platformCount,
         },
-        quickstart: 'https://outpost-landing-one.vercel.app/#quickstart',
+        quickstart: 'https://outpost.hibernyte.com/#quickstart',
         created: false,
       };
     }
@@ -123,7 +123,7 @@ export class AuthService {
         postsPerMonth: freeLimits.postsPerMonth,
         platforms: freeLimits.platformCount,
       },
-      quickstart: 'https://outpost-landing-one.vercel.app/#quickstart',
+      quickstart: 'https://outpost.hibernyte.com/#quickstart',
       created: true,
     };
   }
