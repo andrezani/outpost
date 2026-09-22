@@ -2,6 +2,12 @@
 
 ---
 
+## 2026-09-22 (hosting moved to Coolify)
+
+Production API runs on Coolify on the Hibernyte VPS at `https://outpost.hibernyte.com`, built from `main` — see `DEPLOY.md`. The landing page is not hosted. Hosting, deploy and env-var steps in the entries below are obsolete; don't follow them.
+
+---
+
 ## 2026-03-27 (npm publish attempt + OAuth diagnostic)
 
 ### Task: CRITICAL — publish @outpost/mcp-server + fix quickstart URL + OAuth diagnostic

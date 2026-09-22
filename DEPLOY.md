@@ -39,7 +39,3 @@ Prisma migrations are **not** rolled back by a redeploy. If the bad deploy inclu
 ## `docker-compose.yml` is for local development only
 
 It publishes Postgres on host port `5432` with the password `outpost`, and Redis on `6379` with no password. **Never run it on a server:** ports published by Docker bypass the host firewall (e.g. `ufw`), so this would put the database on the internet. Production uses the Coolify-managed databases above.
-
-## History
-
-The API was previously deployed on Railway (`outpost-production-b1b8.up.railway.app`). That deployment had been failing since 2026-03-27 and the Railway project is being deleted. `railway.toml` was removed because nothing reads it any more.

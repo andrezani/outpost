@@ -1,7 +1,7 @@
 # OAUTH_STATUS.md — Outpost OAuth Diagnostic
 *Written by Rex (CTO) — 2026-03-27*
 
-> **Updated 2026-09-22:** the API moved from Railway to Coolify on the VPS (`https://outpost.hibernyte.com`). Callback URLs and env-var locations below reflect the new host. Still true: no social OAuth client IDs/secrets are set in production yet.
+> **Updated 2026-09-22:** the API now runs on Coolify on the Hibernyte VPS (`https://outpost.hibernyte.com`). Callback URLs and env-var locations below reflect the new host. Still true: no social OAuth client IDs/secrets are set in production yet.
 
 ## TL;DR
 
