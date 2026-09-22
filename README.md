@@ -47,6 +47,12 @@ curl -X POST http://localhost:3000/api/v1/publish \
 
 ---
 
+## Production
+
+The hosted API runs at **https://outpost.hibernyte.com** (API base `/api/v1`, Swagger UI at `/api`). It is deployed by Coolify from the `main` branch — see [DEPLOY.md](./DEPLOY.md).
+
+---
+
 ## Monorepo map
 
 This repository is now the canonical Outpost monorepo:
@@ -367,6 +373,8 @@ docker compose exec app npm run seed:admin
 # 5. Open Swagger playground
 open http://localhost:3000/api
 ```
+
+> ⚠️ `docker-compose.yml` is for local development only: it publishes Postgres (password `outpost`) and Redis on the host, and Docker-published ports bypass host firewalls. Don't run it as-is on an internet-facing server — see [DEPLOY.md](./DEPLOY.md).
 
 > The app container runs `prisma migrate deploy` automatically on startup.
 > Postgres and Redis data persist in named Docker volumes across restarts.

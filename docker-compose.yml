@@ -1,3 +1,6 @@
+# LOCAL DEVELOPMENT ONLY. Publishes Postgres (password `outpost`) and Redis on the
+# host; Docker-published ports bypass host firewalls. Never run this on a server.
+# Production runs on Coolify (see DEPLOY.md).
 version: '3.9'
 
 services:

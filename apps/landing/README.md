@@ -4,18 +4,13 @@ Static landing page for [outpost.dev](https://outpost.dev).
 
 ## Stack
 - Pure HTML/CSS/JS — no build step, no framework
-- Deploys to Vercel (drag & drop or CLI)
 - Stripe checkout links wired in `app.js`
 
-## Deploy to Vercel
+## Hosting
 
-```bash
-# Option 1: Vercel CLI
-npm i -g vercel
-vercel deploy
+Not hosted right now. If it ships, it goes on the Hibernyte VPS under Coolify, alongside the API. Nothing in this repo deploys it.
 
-# Option 2: Drag the folder to vercel.com/new
-```
+Preview locally with any static file server, e.g. `python3 -m http.server 8080`.
 
 ## Wiring Stripe
 
@@ -29,10 +24,10 @@ const STRIPE_LINKS = {
 };
 ```
 
-## Domain
+## Domain & API
 
-Waiting on Andrea to register `outpost.dev` (or `outpostapi.dev`).
-Set `API_BASE` in `app.js` once domain + API are live.
+No marketing domain yet (`outpost.dev` / `outpostapi.dev` were the candidates).
+`API_BASE` in `app.js` points at the production API, `https://outpost.hibernyte.com`.
 
 ## Founding Seat Counter
 

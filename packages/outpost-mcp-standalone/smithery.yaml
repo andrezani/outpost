@@ -14,15 +14,15 @@ startCommand:
       apiUrl:
         type: string
         description: >
-          Outpost API base URL. Defaults to https://api.outpostapi.dev.
+          Outpost API base URL. Defaults to https://outpost.hibernyte.com.
           Override this if you are self-hosting Outpost.
-        default: "https://api.outpostapi.dev"
+        default: "https://outpost.hibernyte.com"
   commandFunction: |-
     config => ({
       command: 'node',
       args: ['index.js'],
       env: {
         OUTPOST_API_KEY: config.apiKey,
-        OUTPOST_API_URL: config.apiUrl || 'https://api.outpostapi.dev'
+        OUTPOST_API_URL: config.apiUrl || 'https://outpost.hibernyte.com'
       }
     })

@@ -18,7 +18,7 @@ const STRIPE_LINKS = {
   teamFounding: null, // TODO: 'https://buy.stripe.com/XXX' — Team Founding $49/mo
 };
 
-const API_BASE = 'https://outpost-production-b1b8.up.railway.app';
+const API_BASE = 'https://outpost.hibernyte.com';
 
 const FOUNDING_SEATS_TOTAL = 50;
 
