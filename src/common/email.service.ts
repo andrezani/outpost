@@ -82,7 +82,7 @@ Quick start (30 seconds):
 ${curlExample}
 
 Free tier: 100 posts/month, 3 platforms.
-Docs: https://outpost-landing-one.vercel.app/#quickstart
+Docs: https://outpost.hibernyte.com/#quickstart
 
 — Andrea, Outpost`;
 
@@ -94,7 +94,7 @@ Docs: https://outpost-landing-one.vercel.app/#quickstart
   </table>
   <p><strong>Quick start (30 seconds):</strong></p>
   <pre style="background:#f5f5f5;padding:12px;border-radius:6px;font-size:12px;overflow-x:auto">${curlExample}</pre>
-  <p>Free tier: 100 posts/month, 3 platforms.<br>Docs: <a href="https://outpost-landing-one.vercel.app/#quickstart">Quick Start →</a></p>
+  <p>Free tier: 100 posts/month, 3 platforms.<br>Docs: <a href="https://outpost.hibernyte.com/#quickstart">Quick Start →</a></p>
   <p>— Andrea, Outpost</p>
 </div>`;
 
